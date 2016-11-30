@@ -80,31 +80,40 @@ fi
 # TODO : rename les var files file en générique
 files=$(cat $conf)
 found=""
-
+# Lecture du fichier contennat les différents chemins à sauvegarder
 for file in $files; do
 	if [ -f $file ] || [ -d $file ]; then
 		if [ -r $file ]; then
-			found=${found}$'\n'$file
+			found=${found}"\n"$file
 		else
-			error=${error}$'\n'"Problème de droit d'accès : "$file
+			error=${error}"\nProblème de droit d'accès : "$file
 		fi
 	else
 		if ! [ -d $file ]; then
-			error=${error}$'\n'"Fichier inexistant : "$file
+			error=${error}"\nFichier inexistant : "$file
 		fi
 	fi
 done;
-if ! [ -z $error ]; then
-	echo $error
+if ! [ -z "$error" ]; then
+	echo -e $error
 	# TODO : choisir un exit code
 	exit 4;
 fi
 
+echo ----------------
+echo -e $found
+echo ----------------
 
-echo ----------------
-echo $error
-echo ----------------
-echo $found
-echo ----------------
-name=$(date +%d-%m-%Y-%X)
-tar -czfv ${backupdir}${name}.tar test
+# Création de la sauvegarde 
+date=$(date +%d-%m-%Y_%H-%M)
+name=${backupdir}${date}.tar.gz
+
+# Différence entre deux backups effectuées au même moment
+
+if [ -f $name ]; then
+	count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
+	name=${backupdir}${date}_${count}.tar.gz
+fi
+tar -zcvf $name --files-from test
+
+# Vérification de l'existence de moins de 100 backups
