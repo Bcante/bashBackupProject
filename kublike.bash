@@ -104,8 +104,9 @@ echo ----------------
 echo -e $found
 echo ----------------
 
-# Création de la sauvegarde 
-date=$(date +%d-%m-%Y_%H-%M)
+# Création du nom de la sauvegarde
+
+date=$(date +%Y-%m-%d_%H-%M)
 name=${backupdir}${date}.tar.gz
 
 # Différence entre deux backups effectuées au même moment
@@ -114,6 +115,16 @@ if [ -f $name ]; then
 	count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
 	name=${backupdir}${date}_${count}.tar.gz
 fi
-tar -zcvf $name --files-from test
 
 # Vérification de l'existence de moins de 100 backups
+
+backupCount=`ls $backupdir | grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(_[0-9]+)?\.tar\.gz" | wc -l`
+
+if [ $backupCount -ge 100 ]; then
+	file=`ls -tr backups | head -n 1`
+	`rm ${backupdir}$file`
+fi
+
+# Création de la sauvegarde
+
+tar -zcvf $name --files-from test
