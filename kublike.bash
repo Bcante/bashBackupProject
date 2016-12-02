@@ -23,11 +23,11 @@ function verifyParams {
 							echo "Conf file found ${!index}"
 							conf=${!index}
 						else
-							echo File not readable
+							echo "File not readable"
 							exit 2
 						fi
 					else
-						echo File not found
+						echo "File not found"
 						exit 1
 					fi
 				fi
@@ -40,18 +40,18 @@ function verifyParams {
 							echo "Backup Directory found ${!index}"
 							backupdir=${!index}
 						else
-							echo Directory not readable
+							echo "Directory not readable"
 							exit 2
 						fi
 					else
-						echo Backup Directory not found
+						echo "Backup Directory not found"
 						exit 1
 					fi
 				fi
 			fi
 		done
 		if ! [ -z $error ]; then
-			echo $error;
+			echo "$error";
 			#TODO : Récupérer code d'erreur du bloc for précédent
 		fi
 	else
@@ -70,7 +70,7 @@ function verifyParams {
 			error="$error BackupDir not found"$'\n'
 		fi
 		if ! [ -z "$error" ]; then
-			echo $error
+			echo "$error"
 			exit 1
 		fi
 	fi
@@ -96,14 +96,14 @@ function readPaths {
 		fi
 	done;
 	if ! [ -z "$error" ]; then
-		echo -e $error
+		echo -e "$error"
 		# TODO : choisir un exit code
 		exit 4;
 	fi
 
-	echo ----------------
-	echo -e $found
-	echo ----------------
+	echo "----------------"
+	echo -e "$found"
+	echo "----------------"
 }
 
 # Création du nom de la sauvegarde
