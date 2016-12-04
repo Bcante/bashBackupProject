@@ -42,7 +42,7 @@ function formatSyno () {
 #1 = saison
 #2 = episode
 function checkGPG {
-	echo gpg --verify "PGP_S'$1'E'$2"
+	echo "gpg --verify PGP_S'$1'E'$2"
 }
 
 IFS=$'\n'
