@@ -46,6 +46,28 @@ function checkGPG {
 	echo $? 
 }
 
+QUIETFLAG=0
+#Option -q : quiet: La sortie d'erreur n'est pas affichée, si des fichiers ne peuvent être vérifié on remplit un fichier
+# qui sera envoyé par mail
+while getopts "q" opt; do
+  case $opt in
+    q)
+      echo "Passage en mode silencieux"
+	  exec 2>/dev/null	
+	  QUIETFLAG=1
+	  if [ -f "$Rejets" ]; then				
+		rm $Rejets		
+	  fi
+	  touch Rejets
+	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Rejets
+	  #Rediriger les erreurs vers le null
+      ;;
+    \?)
+      echo "Option non reconnue: -$OPTARG"
+      ;;
+  esac
+done
+
 IFS=$'\n'
 curl 'https://daenerys.xplod.fr/synopsis.php' | grep -e '"synopsis.php' | grep -E '<a.*>(.*)</a>' > curlRes
 regex="s=([0-9]+).*e=([0-9]+).*Episode\s[0-9]+:\s(.+)<\/a>"
@@ -57,22 +79,29 @@ while read -u 10 p; do
 	if [[ $p =~ $regex ]] ; then
 		SAISON="${BASH_REMATCH[1]}"		
 		EPISODE="${BASH_REMATCH[2]}"
-		
-		
 		#Récupération PGP		
 		wget "https://daenerys.xplod.fr/supsyn.php?e=$EPISODE&s=$SAISON" -O "/home/$USER/got/"'PGP_S'$SAISON'E'$EPISODE -P "/home/$USER/got/"
 		checkGPG=$(checkGPG $SAISON $EPISODE)
+
 		#Récupération synopsis si on a une bonne signature
-		#echo "VOILA LE SIGNE: $goodSign"
-		if [ $checkGPG = "0" ]; then
+		if [ "$checkGPG" = "0" ]; then
 			checkFiles $SAISON $EPISODE
 			curl "https://daenerys.xplod.fr/synopsis.php?s=$SAISON&e=$EPISODE" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
 			
 			while read -u 10 d; do
 				formatSyno $d $SAISON $EPISODE
 			done 10<curlRes2
+		else
+			if [ "$QUIETFLAG" = "1" ]; then
+				#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
+				echo "Saison $SAISON Episode $EPISODE.txt" >> Rejets
+			fi
 		fi
 	fi
 done 10<curlRes
 
-
+#Si on est en mode quiet on s'envoie le résultat par mail
+if [ "$QUIETFLAG" = "1" ]; then
+	#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
+	cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" cantebenoit@hotmail.com
+fi
