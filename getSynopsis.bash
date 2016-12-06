@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 function importGPG {
 	curl "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key  ​
 	gpg --import pubkey.key
