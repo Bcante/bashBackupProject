@@ -3,8 +3,19 @@
 
 
 function importGPG {
-	curl "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key  ​
+	curl --retry $TRY "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key
+	curlok=$(echo $?)
+	if [ "$curlok" != "1" ]; then
+		echo "Le site est indisponible, après avoir essayé $TRY fois."
+		if [ "$QUIETFLAG" = "1" ]; then
+			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
+			echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." cantebenoit@hotmail.com
+		fi
+		exit 1
+
+	fi
 	gpg --import pubkey.key
+
 }
 
 function initFolder {
@@ -37,18 +48,18 @@ function formatSyno () {
 		if [[ "$SYNO2" != "" ]]; then
 			echo "$SYNO2">>"/home/$USER/got/$FILETMP"
 		fi
-		
 	fi
 }
 
 #1 = saison
 #2 = episode
 function checkGPG {
-	a=$(gpg --verify /home/$USER/got/PGP_S$1E$2)
+	local codeRetour=$(gpg --verify /home/$USER/got/PGP_S$1E$2)
 	echo $? 
 }
-
+DATE=`date +%Y-%m-%d:%H:%M:%S`
 QUIETFLAG=0
+TRY=3
 #Option -q : quiet: La sortie d'erreur n'est pas affichée, si des fichiers ne peuvent être vérifié on remplit un fichier
 # qui sera envoyé par mail
 while getopts "q" opt; do
@@ -83,6 +94,7 @@ while read -u 10 p; do
 		EPISODE="${BASH_REMATCH[2]}"
 		#Récupération PGP		
 		wget "https://daenerys.xplod.fr/supsyn.php?e=$EPISODE&s=$SAISON" -O "/home/$USER/got/"'PGP_S'$SAISON'E'$EPISODE -P "/home/$USER/got/"
+
 		checkGPG=$(checkGPG $SAISON $EPISODE)
 
 		#Récupération synopsis si on a une bonne signature
