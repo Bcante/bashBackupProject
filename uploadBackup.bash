@@ -32,7 +32,17 @@ function uploadBackup () {
 function getMyFile () {
 	#Exemple: curl "https://daenerys.xplod.fr/backup/download.php?login=SwagCityRockers&hash=d5acf475af0ba81529cdd21d50b18be1"
 	#On part à la recherche du hash correspondant dans notre fichier
-	curl "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$HASH"
+	local hash=""
+	regex="[a-zA-Z0-9\_]+\s([a-zA-Z0-9]+)"
+	while read -u 10 p; do
+		echo $p
+		if [[ $p =~ $regex ]]; then
+			local hash="${BASH_REMATCH[1]}"
+			echo "match hash is "$hash
+		fi
+	done 10<sent
+	echo "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash"
+	curl "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash"
 }
 
 #Vérifie si le fichier fait partie de ma liste de fichiers mis en ligne. Si ce n'est pas le cas, alors j'écris son nom et son hash
@@ -51,6 +61,5 @@ function addToFile () {
 }
 
 init
-uploadBackup "stop"
-uploadBackup "facechecking"
-uploadBackup "teemo"
+uploadBackup stop
+getMyFile "stop"
