@@ -118,6 +118,11 @@ function chooseBackupName {
 	fi
 }
 
+# Création de la sauvegarde
+function doTheTar {
+	tar -zcvf $name --files-from $found
+}
+
 # Vérification de l'existence de moins de 100 backups
 function clearOldBackups {
 	backupCount=`ls $backupdir | grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(_[0-9]+)?\.tar\.gz" | wc -l`
@@ -126,11 +131,6 @@ function clearOldBackups {
 		file=`ls -tr backups | head -n 1`
 		`rm ${backupdir}$file`
 	fi
-}
-
-# Création de la sauvegarde
-function doTheTar {
-	tar -zcvf $name --files-from test
 }
 
 ###############################
@@ -146,5 +146,5 @@ backupdir="backups/"
 verifyParams "$@"
 readPaths
 chooseBackupName
-clearOldBackups
 doTheTar
+clearOldBackups

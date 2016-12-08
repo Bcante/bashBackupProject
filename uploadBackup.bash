@@ -14,7 +14,7 @@ function init {
 # $1 : Le nom (et que le nom) du fichier qu'on veut récupérer.
 function uploadBackup () {
 	local fileToUpload="$1"
-	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=SwagCityRockers" -F "file=@$fileToUpload")
+	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$NAME" -F "file=@$fileToUpload")
 	echo "Réponse serveur: $reponse"
 	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
 	IFS== read status hashsite <<< $reponse
