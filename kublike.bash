@@ -118,7 +118,7 @@ function chooseBackupName {
 	fi
 }
 
-# Vérification de l'existence de moins de 100 backups
+# Maintien du nombre de backup a 100 maximum
 function clearOldBackups {
 	backupCount=`ls $backupdir | grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(_[0-9]+)?\.tar\.gz" | wc -l`
 
@@ -131,6 +131,23 @@ function clearOldBackups {
 # Création de la sauvegarde
 function doTheTar {
 	tar -zcvf $name --files-from test
+}
+
+###
+# A faire seulement lors de l'installation
+###
+function prepareEncryption {
+	gpg2 --gen-key
+}
+
+# Chiffrement de la sauvegarde
+function encryptTheTar {
+	gpg2 --symmetric --encrypt $name
+}
+
+# Déchiffrement de la sauvegarde
+function decryptTheTar {
+	gpg2 --decrypt $1
 }
 
 ###############################
