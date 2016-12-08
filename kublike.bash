@@ -133,21 +133,29 @@ function clearOldBackups {
 	fi
 }
 
-###
+##########################################
 # A faire seulement lors de l'installation
 ###
 function prepareEncryption {
 	gpg2 --gen-key
 }
+##########################################S
 
 # Chiffrement de la sauvegarde
-function encryptTheTar {
-	gpg2 --symmetric --encrypt $name
+## $1 nom du fichier a encrypter
+## suivi de cat $fichierConf
+## - $2 est le nom du destinataire
+## - $3 est la passphrase du tar
+function encrypt {
+	gpg2 --symmetric --batch --yes --recipient $2 --passphrase $3 --encrypt $1
 }
 
 # Déchiffrement de la sauvegarde
-function decryptTheTar {
-	gpg2 --decrypt $1
+## $1 nom du fichier a décrypter
+## suivi de cat $fichierConf
+## - $3 est la passphrase du tar
+function decrypt {
+	gpg2 --passphrase $3 --decrypt $1
 }
 
 ###############################
@@ -155,6 +163,7 @@ function decryptTheTar {
 ###############################
 error=""
 conf="backup.conf"
+fichierConf="kublike.conf"
 backupdir="backups/"
 
 ############################
@@ -165,3 +174,4 @@ readPaths
 chooseBackupName
 doTheTar
 clearOldBackups
+encrypt $name `cat $fichierConf`
