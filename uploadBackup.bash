@@ -1,8 +1,6 @@
 #!/bin/bash
 NAME="SwagCityRockers"
 
-#On a un tableau associatif nomFichierBackup -> hashSurLeSite
-
 #Fonction d'initialisation pour vérifier qu'on a bien notre associations de fichiers mis en ligne
 function init {
 	local FILETMP="sent"
@@ -33,7 +31,7 @@ function getMyFile () {
 	#Exemple: curl "https://daenerys.xplod.fr/backup/download.php?login=SwagCityRockers&hash=d5acf475af0ba81529cdd21d50b18be1"
 	#On part à la recherche du hash correspondant dans notre fichier
 	local hash=""
-	regex="[a-zA-Z0-9\_]+\s([a-zA-Z0-9]+)"
+	local regex="[a-zA-Z0-9\_]+\s([a-zA-Z0-9]+)"
 	while read -u 10 p; do
 		echo $p
 		if [[ $p =~ $regex ]]; then
@@ -45,21 +43,41 @@ function getMyFile () {
 	curl "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash"
 }
 
-#Vérifie si le fichier fait partie de ma liste de fichiers mis en ligne. Si ce n'est pas le cas, alors j'écris son nom et son hash
+# Vérifie si le fichier fait partie de ma liste de fichiers mis en ligne. 
+# Si ce n'est pas le cas, alors j'écris son nom et son hash
+# Sinon je met à jour le hash. 
 # $1 : Le nom du fichier a vérifier
 # $2 : Le hash lié au fichier
 function addToFile () {
-	local resGrep=`grep sent -e $1`
+	#Repérer la ligne qui m'intéresse et changer le hash par le nouveau...
+	local alreadyHere="0"
+	while read -u 10 p; do
+		echo $p
+		local regex="$1\s([a-zA-Z0-9]+)"
+		if [[ $p =~ $regex ]]; then
+			local alreadyHere="1"
+			local oldHash="${BASH_REMATCH[1]}"
+			echo "$1 existe déjà: je vais changer son hash actuel par le nouveau."
+			echo "Current hash: $oldHash"
+			echo "New hash: $2"
 
-	if [ "$resGrep" = "" ] 
-		then
-			echo "Rajout du fichier $1 (hash: $2) a mes envois..."
-			echo "$1 $2" >> sent
-		else 
-			echo "J'ai déjà mis en 	ligne le fichier $1"
-	fi;
+			sed -i -e "s/$oldHash/$2/g" sent
+		fi
+	done 10<sent
+
+	if [ $alreadyHere = "0" ]; then
+		echo "Le fichier $1 n'est pas présent"
+		echo $1 $2 >> sent
+	fi
 }
 
 init
-uploadBackup stop
-getMyFile "stop"
+touch canttouchthis
+
+uploadBackup canttouchthis
+getMyFile canttouchthis
+
+echo "hammer time!" >> canttouchthis
+
+uploadBackup canttouchthis
+getMyFile canttouchthis
