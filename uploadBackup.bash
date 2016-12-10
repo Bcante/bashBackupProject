@@ -37,8 +37,9 @@ function getMyFile () {
 			local hash="${BASH_REMATCH[1]}"
 		fi
 	done 10<sent
+
+	#Si jamais il n'y a aucun fichier à mettre en ligne (notre fichier sent est vide)
 	if [ "$fileToUpload" != "" ]; then
-		echo "c'est pas nul hein"
 		wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $fileToUpload
 	else
 		dialog --title "Impossible d'afficher les backups" --msgbox "Assurez vous d'avoir uploader au moins un fichier, afin que le fichier send ne soit pas vide" 0 0
