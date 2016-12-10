@@ -9,22 +9,19 @@ function init {
 	fi
 }
 
-# $1 : Le nom (et que le nom) du fichier qu'on veut récupérer.
+# Pour testé, on prend que les fichiers du dir courant pour les upload.
 function uploadBackup () {
-	local fileToUpload="$1"
+	local fileToUpload=$(dialog --stdout --fselect "" 0 0)
 	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$NAME" -F "file=@$fileToUpload")
-	echo "Réponse serveur: $reponse"
 	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
 	IFS== read status hashsite <<< $reponse
 	#On vérifie que le site a bien reçu
-	echo "Pour l'upload de $fileToUpload"
-	echo "$status"
-	echo "$hashsite"
 
 	if [ "${status:0:2}" = "OK" ]; then
 		addToFile $fileToUpload $hashsite
 	fi
 }
+
 
 # $1 : Le nom (et que le nom) du fichier qu'on veut récupérer.
 function getMyFile () {
@@ -36,11 +33,9 @@ function getMyFile () {
 		echo $p
 		if [[ $p =~ $regex ]]; then
 			local hash="${BASH_REMATCH[1]}"
-			echo "match hash is "$hash
 		fi
 	done 10<sent
-	echo "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash"
-	curl "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash"
+	wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $1
 }
 
 # Vérifie si le fichier fait partie de ma liste de fichiers mis en ligne. 
@@ -57,27 +52,12 @@ function addToFile () {
 		if [[ $p =~ $regex ]]; then
 			local alreadyHere="1"
 			local oldHash="${BASH_REMATCH[1]}"
-			echo "$1 existe déjà: je vais changer son hash actuel par le nouveau."
-			echo "Current hash: $oldHash"
-			echo "New hash: $2"
-
 			sed -i -e "s/$oldHash/$2/g" sent
 		fi
 	done 10<sent
 
 	if [ $alreadyHere = "0" ]; then
-		echo "Le fichier $1 n'est pas présent"
-		echo $1 $2 >> sent
+		echo "Le fichier $1 n'est pas présent dans mon fichier de log"
+		echo $1 $2 "\n">> sent
 	fi
 }
-
-init
-touch canttouchthis
-
-uploadBackup canttouchthis
-getMyFile canttouchthis
-
-echo "hammer time!" >> canttouchthis
-
-uploadBackup canttouchthis
-getMyFile canttouchthis
