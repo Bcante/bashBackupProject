@@ -75,6 +75,7 @@ function getSyno {
 	importGPG
 
 	#Pour toutes les lignes du fichier curlRes1 (celles indiquant ou trouver les synopsis)
+
 	while read -u 10 p; do
 		if [[ $p =~ $regex ]] ; then
 			SAISON="${BASH_REMATCH[1]}"		
@@ -100,7 +101,7 @@ function getSyno {
 			fi
 		fi
 	done 10<curlRes
-
+	
 	#Si on est en mode quiet on s'envoie le résultat par mail
 	if [ "$QUIETFLAG" = "1" ]; then
 		#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
@@ -109,3 +110,4 @@ function getSyno {
 		rm Rejets
 	fi
 }
+

@@ -9,9 +9,16 @@ function init {
 	fi
 }
 
-# Pour testé, on prend que les fichiers du dir courant pour les upload.
-function upMyFile () {
+# Pour tester, on prend que les fichiers du dir courant pour les upload.
+function graphUpMyFile {
 	local fileToUpload=$(dialog --title "Sélectionner le fichier à uploader" --stdout --fselect "" 0 0)
+	upload $fileToUpload
+}
+
+# Corps de la méthode pour mettre en ligne un fichier
+# $1 : Le fichier à mettre en ligne 
+function upload () {
+	local fileToUpload=$1
 	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$NAME" -F "file=@$fileToUpload")
 	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
 	IFS== read status hashsite <<< $reponse
@@ -21,7 +28,6 @@ function upMyFile () {
 		addToFile $fileToUpload $hashsite
 	fi
 }
-
 
 # $1 : Le nom (et que le nom) du fichier qu'on veut récupérer.
 function getMyFile () {
@@ -65,7 +71,6 @@ function addToFile () {
 	done 10<sent
 
 	if [ $alreadyHere = "0" ]; then
-		echo "Le fichier $1 n'est pas présent dans mon fichier de log"
 		echo $1 $2 >> sent
 		sed -i -e '$a\' sent
 	fi

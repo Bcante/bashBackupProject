@@ -14,7 +14,7 @@ function aiguillageMainMenu () {
 		  dialog --msgbox "$message" 0 0
 		  ;;
 		2)
-		  upMyFile -q
+		  graphUpMyFile -q
 		  ;;
 		3)
 		  getMyFile
