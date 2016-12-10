@@ -27,15 +27,16 @@ function uploadBackup () {
 function getMyFile () {
 	#Exemple: curl "https://daenerys.xplod.fr/backup/download.php?login=SwagCityRockers&hash=d5acf475af0ba81529cdd21d50b18be1"
 	#On part à la recherche du hash correspondant dans notre fichier
+	local fileToUpload=$(displayUploadedFiles)
 	local hash=""
-	local regex="[a-zA-Z0-9\_]+\s([a-zA-Z0-9]+)"
+	local regex="$fileToUpload\s([a-zA-Z0-9]+)"
 	while read -u 10 p; do
 		echo $p
 		if [[ $p =~ $regex ]]; then
 			local hash="${BASH_REMATCH[1]}"
 		fi
 	done 10<sent
-	wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $1
+	wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $fileToUpload
 }
 
 # Vérifie si le fichier fait partie de ma liste de fichiers mis en ligne. 
@@ -58,6 +59,33 @@ function addToFile () {
 
 	if [ $alreadyHere = "0" ]; then
 		echo "Le fichier $1 n'est pas présent dans mon fichier de log"
-		echo $1 $2 "\n">> sent
+		echo $1 $2 >> sent
+		sed -i -e '$a\' sent
 	fi
 }
+
+function displayUploadedFiles {
+	local MENU_OPTIONS=
+	local COUNT=0
+	local OLDIFS=$IFS
+	local IFS=$'\n'
+	for p in `cat sent`
+	do
+		local regex="(.*)\s(.*)"
+		#regex="([a-z\.A-Z0-9\_]+)\s([a-zA-Z0-9]+)"
+		    if [[ $p =~ $regex ]]; then
+		    	#echo "grp1: "${BASH_REMATCH[1]}
+		    	#echo "grp2: "${BASH_REMATCH[2]}
+		    	COUNT=$[COUNT+1]
+	       		MENU_OPTIONS="${MENU_OPTIONS} ${BASH_REMATCH[1]} ${COUNT}"
+		    fi
+	done
+	local IFS=$OLDIFS
+
+	cmd=(dialog --menu "Quel fichier voulez vous récupérer?:" 22 76 16)
+	options=("${MENU_OPTIONS}:1")
+	fileToUpload=$(dialog --stdout --menu "Nigga" 0 0 0 $MENU_OPTIONS)
+	echo $fileToUpload
+}
+
+getMyFile
