@@ -1,21 +1,21 @@
 #!/bin/bash
-
-
+DATE=`date +%Y-%m-%d:%H:%M:%S`
+QUIETFLAG=0
+TRY=3
 
 function importGPG {
 	curl --retry $TRY "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key
 	curlok=$(echo $?)
-	if [ "$curlok" != "1" ]; then
+	if [ "$curlok" != "0" ]; then
 		echo "Le site est indisponible, après avoir essayé $TRY fois."
 		if [ "$QUIETFLAG" = "1" ]; then
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 			echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." cantebenoit@hotmail.com
 		fi
 		exit 1
-
 	fi
-	gpg --import pubkey.key
 
+	gpg --import pubkey.key
 }
 
 function initFolder {
@@ -54,12 +54,9 @@ function formatSyno () {
 #1 = saison
 #2 = episode
 function checkGPG {
-	local codeRetour=$(gpg --verify /home/$USER/got/PGP_S$1E$2)
-	echo $? 
+	echo $(gpg --verify /home/$USER/got/PGP_S$1E$2)
 }
-DATE=`date +%Y-%m-%d:%H:%M:%S`
-QUIETFLAG=0
-TRY=3
+
 #Option -q : quiet: La sortie d'erreur n'est pas affichée, si des fichiers ne peuvent être vérifié on remplit un fichier
 # qui sera envoyé par mail
 while getopts "q" opt; do
@@ -81,41 +78,47 @@ while getopts "q" opt; do
   esac
 done
 
-IFS=$'\n'
-curl 'https://daenerys.xplod.fr/synopsis.php' | grep -e '"synopsis.php' | grep -E '<a.*>(.*)</a>' > curlRes
-regex="s=([0-9]+).*e=([0-9]+).*Episode\s[0-9]+:\s(.+)<\/a>"
-REGEXSYNO="^([a-zA-Z].*)<|<p class=\"left-align light\">(.*)<"
-importGPG
 
-#Pour toutes les lignes du fichier curlRes1 (celles indiquant ou trouver les synopsis)
-while read -u 10 p; do
-	if [[ $p =~ $regex ]] ; then
-		SAISON="${BASH_REMATCH[1]}"		
-		EPISODE="${BASH_REMATCH[2]}"
-		#Récupération PGP		
-		wget "https://daenerys.xplod.fr/supsyn.php?e=$EPISODE&s=$SAISON" -O "/home/$USER/got/"'PGP_S'$SAISON'E'$EPISODE -P "/home/$USER/got/"
+#Fonction principale qui lance le téléchargement de tous les programmes
+function getSyno {
+	IFS=$'\n'
+	curl 'https://daenerys.xplod.fr/synopsis.php' | grep -e '"synopsis.php' | grep -E '<a.*>(.*)</a>' > curlRes
+	regex="s=([0-9]+).*e=([0-9]+).*Episode\s[0-9]+:\s(.+)<\/a>"
+	REGEXSYNO="^([a-zA-Z].*)<|<p class=\"left-align light\">(.*)<"
+	importGPG
 
-		checkGPG=$(checkGPG $SAISON $EPISODE)
+	#Pour toutes les lignes du fichier curlRes1 (celles indiquant ou trouver les synopsis)
+	while read -u 10 p; do
+		if [[ $p =~ $regex ]] ; then
+			SAISON="${BASH_REMATCH[1]}"		
+			EPISODE="${BASH_REMATCH[2]}"
+			#Récupération PGP		
+			wget "https://daenerys.xplod.fr/supsyn.php?e=$EPISODE&s=$SAISON" -O "/home/$USER/got/"'PGP_S'$SAISON'E'$EPISODE -P "/home/$USER/got/"
 
-		#Récupération synopsis si on a une bonne signature
-		if [ "$checkGPG" = "0" ]; then
-			checkFiles $SAISON $EPISODE
-			curl "https://daenerys.xplod.fr/synopsis.php?s=$SAISON&e=$EPISODE" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
-			
-			while read -u 10 d; do
-				formatSyno $d $SAISON $EPISODE
-			done 10<curlRes2
-		else
-			if [ "$QUIETFLAG" = "1" ]; then
-				#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-				echo "Saison $SAISON Episode $EPISODE.txt" >> Rejets
+			$(gpg --verify /home/$USER/got/PGP_S${SAISON}E${EPISODE})
+			checkGPG=`echo $?`
+			#Récupération synopsis si on a une bonne signature
+			if [ "$checkGPG" = "0" ]; then
+				echo "NO HACKERINO HERE"
+				checkFiles $SAISON $EPISODE
+				curl "https://daenerys.xplod.fr/synopsis.php?s=$SAISON&e=$EPISODE" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
+				
+				while read -u 10 d; do
+					formatSyno $d $SAISON $EPISODE
+				done 10<curlRes2
+			else
+				echo "YES HACKERINO HERE"
+				if [ "$QUIETFLAG" = "1" ]; then
+					#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
+					echo "Saison $SAISON Episode $EPISODE.txt" >> Rejets
+				fi
 			fi
 		fi
-	fi
-done 10<curlRes
+	done 10<curlRes
 
-#Si on est en mode quiet on s'envoie le résultat par mail
-if [ "$QUIETFLAG" = "1" ]; then
-	#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-	cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" cantebenoit@hotmail.com
-fi
+	#Si on est en mode quiet on s'envoie le résultat par mail
+	if [ "$QUIETFLAG" = "1" ]; then
+		#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
+		cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" cantebenoit@hotmail.com
+	fi
+}

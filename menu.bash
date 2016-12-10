@@ -2,6 +2,7 @@
 
 #Improtation des fichiers bashs contenant les fonctions qui nous intéressent
 source uploadBackup.bash
+source getSynopsis.bash
 
 # $1 : L'option que l'utilisateur a rentré
 function aiguillage () {
@@ -18,6 +19,9 @@ function aiguillage () {
 	3)
 	  getMyFile
   	  ;;
+  	4)
+	  getSyno
+	  ;;
 	0)
 	  quit=1
 	  ;;  
@@ -33,7 +37,8 @@ while [ $quit -eq 0 ]; do
 		"0" "Quitter" \
 		"1" "Faire un Backup" \
 		"2" "Mettre en ligne un backup" \
-		"3" "Télécharger un backup") 
+		"3" "Télécharger un backup" \
+		"4" "Télécharger les synopsis") 
 	aiguillage $choix
 done
 echo "Au revoir"
