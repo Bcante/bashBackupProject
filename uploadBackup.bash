@@ -10,7 +10,7 @@ function init {
 }
 
 # Pour testé, on prend que les fichiers du dir courant pour les upload.
-function uploadBackup () {
+function upMyFile () {
 	local fileToUpload=$(dialog --title "Sélectionner le fichier à uploader" --stdout --fselect "" 0 0)
 	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$NAME" -F "file=@$fileToUpload")
 	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
@@ -96,4 +96,4 @@ function displayUploadedFiles {
 		fi
 }
 
-getMyFile
+init
