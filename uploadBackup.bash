@@ -11,7 +11,7 @@ function init {
 
 # Pour testé, on prend que les fichiers du dir courant pour les upload.
 function uploadBackup () {
-	local fileToUpload=$(dialog --stdout --fselect "" 0 0)
+	local fileToUpload=$(dialog --title "Sélectionner le fichier à uploader" --stdout --fselect "" 0 0)
 	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$NAME" -F "file=@$fileToUpload")
 	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
 	IFS== read status hashsite <<< $reponse
@@ -28,6 +28,7 @@ function getMyFile () {
 	#Exemple: curl "https://daenerys.xplod.fr/backup/download.php?login=SwagCityRockers&hash=d5acf475af0ba81529cdd21d50b18be1"
 	#On part à la recherche du hash correspondant dans notre fichier
 	local fileToUpload=$(displayUploadedFiles)
+	echo "ftu: "$fileToUpload
 	local hash=""
 	local regex="$fileToUpload\s([a-zA-Z0-9]+)"
 	while read -u 10 p; do
@@ -36,7 +37,12 @@ function getMyFile () {
 			local hash="${BASH_REMATCH[1]}"
 		fi
 	done 10<sent
-	wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $fileToUpload
+	if [ "$fileToUpload" != "" ]; then
+		echo "c'est pas nul hein"
+		wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $fileToUpload
+	else
+		dialog --title "Impossible d'afficher les backups" --msgbox "Assurez vous d'avoir uploader au moins un fichier, afin que le fichier send ne soit pas vide" 0 0
+	fi
 }
 
 # Vérifie si le fichier fait partie de ma liste de fichiers mis en ligne. 
@@ -64,28 +70,29 @@ function addToFile () {
 	fi
 }
 
+#On vérifie qu'il y au moins une ligne dans 'sent' sinon le menu provoquera une
 function displayUploadedFiles {
-	local MENU_OPTIONS=
-	local COUNT=0
-	local OLDIFS=$IFS
-	local IFS=$'\n'
-	for p in `cat sent`
-	do
-		local regex="(.*)\s(.*)"
-		#regex="([a-z\.A-Z0-9\_]+)\s([a-zA-Z0-9]+)"
-		    if [[ $p =~ $regex ]]; then
-		    	#echo "grp1: "${BASH_REMATCH[1]}
-		    	#echo "grp2: "${BASH_REMATCH[2]}
-		    	COUNT=$[COUNT+1]
-	       		MENU_OPTIONS="${MENU_OPTIONS} ${BASH_REMATCH[1]} ${COUNT}"
-		    fi
-	done
-	local IFS=$OLDIFS
+		local MENU_OPTIONS=
+		local COUNT=0
+		local fileToUpload=""
+		local OLDIFS=$IFS
+		local IFS=$'\n'
+		for p in `cat sent`
+		do
+			local regex="(.*)\s.*"
+			    if [[ $p =~ $regex ]]; then
+			    	COUNT=$[COUNT+1]
+		       		MENU_OPTIONS="${MENU_OPTIONS} ${BASH_REMATCH[1]} ${COUNT}"
+			    fi
+		done
+		local IFS=$OLDIFS
 
-	cmd=(dialog --menu "Quel fichier voulez vous récupérer?:" 22 76 16)
-	options=("${MENU_OPTIONS}:1")
-	fileToUpload=$(dialog --stdout --menu "Nigga" 0 0 0 $MENU_OPTIONS)
-	echo $fileToUpload
+		if [ "$COUNT" != "0" ]; then
+			cmd=(dialog --menu "Quel fichier voulez vous récupérer?:" 22 76 16)
+			options=("${MENU_OPTIONS}:1")
+			local fileToUpload=$(dialog --stdout --menu "Sélectionner le fichier à récupérer depuis le cloud (tm)" 0 0 0 $MENU_OPTIONS)
+			echo $fileToUpload
+		fi
 }
 
 getMyFile
