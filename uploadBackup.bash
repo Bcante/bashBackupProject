@@ -42,7 +42,7 @@ function getMyFile () {
 	if [ "$fileToUpload" != "" ]; then
 		wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $fileToUpload
 	else
-		dialog --title "Impossible d'afficher les backups" --msgbox "Assurez vous d'avoir uploader au moins un fichier, afin que le fichier send ne soit pas vide" 0 0
+		dialog --title "Impossible d'afficher les backups" --msgbox "Soit vous avez annulé l'opération précédente, soit vous n'avez pas encore mis en ligne de backup." 0 0
 	fi
 }
 

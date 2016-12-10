@@ -20,15 +20,13 @@ function aiguillage () {
 	  getMyFile
   	  ;;
   	4)
-	dialog --stdout --yesno "Cette opération doit-elle être silencieuse?"
 	  getSyno  
 	  ;;
 	0)
 	  quit=1
 	  ;;  
-	*)
-	  message="Valeur incorrecte entrée"
-	  dialog --msgbox "$message" 0 0
+	"")
+	  quit=1
 	  ;;
 	esac
 }
@@ -38,7 +36,7 @@ while getopts "q" opt; do
     q)
       echo "Passage en mode silencieux"
 	  exec 2>/dev/null	
-	  beQuiet
+	  synoBeQuiet
 	  #Rediriger les erreurs vers le null
       ;;
     \?)
@@ -48,13 +46,14 @@ while getopts "q" opt; do
 done
 
 quit=0
+choix=0
 while [ $quit -eq 0 ]; do
 	choix=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Quitter" \
 		"1" "Faire un Backup" \
 		"2" "Mettre en ligne un backup" \
 		"3" "Télécharger un backup" \
-		"4" "Télécharger les synopsis") 
+		"4" "Télécharger les synopsis")
 	aiguillage $choix
 done
 echo "Au revoir"

@@ -53,7 +53,7 @@ function formatSyno () {
 }
 
 #Permet de rendre la fonction silencieuse. On initialise le fichier de rejets
-function beQuiet {
+function synoBeQuiet {
 	QUIETFLAG=1
 	if [ -f "$Rejets" ]; then				
 		rm $Rejets		
@@ -67,7 +67,6 @@ function beQuiet {
 
 
 #Fonction principale qui lance le téléchargement de tous les synopsis
-# $1 : Si on est en mode quiet(q) ou bruyant(b) 
 function getSyno {
 	IFS=$'\n'
 	curl 'https://daenerys.xplod.fr/synopsis.php' | grep -e '"synopsis.php' | grep -E '<a.*>(.*)</a>' > curlRes
@@ -92,14 +91,11 @@ function getSyno {
 				formatSyno $d $SAISON $EPISODE
 			done 10<curlRes2
 
-			if [ "$checkGPG" = "0" ]; then
-				echo "NO HACKERINO HERE"
-
-			else
+			if [ "$checkGPG" = "1" ]; then
 				rm $WHERETO/PGP_S${SAISON}E${EPISODE}
 				if [ "$QUIETFLAG" = "1" ]; then
 					#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-					echo "Saison $SAISON Episode $EPISODE.txt" >> Rejets
+					echo "PGP_S${SAISON}E${EPISODE}" >> Rejets
 				fi
 			fi
 		fi
@@ -108,6 +104,8 @@ function getSyno {
 	#Si on est en mode quiet on s'envoie le résultat par mail
 	if [ "$QUIETFLAG" = "1" ]; then
 		#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
+		echo "Envoi du mail en cours..."
 		cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" cantebenoit@hotmail.com
+		rm Rejets
 	fi
 }
