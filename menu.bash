@@ -10,26 +10,42 @@ function aiguillage () {
 	local message=""
 	case $choix in
 	1)
-	  message="Fonctions maximes."
+	  message="Fonctions Maxime."
 	  dialog --msgbox "$message" 0 0
 	  ;;
 	2)
-	  upMyFile
+	  upMyFile -q
 	  ;;
 	3)
 	  getMyFile
   	  ;;
   	4)
-	  getSyno
+	dialog --stdout --yesno "Cette opération doit-elle être silencieuse?"
+	  getSyno  
 	  ;;
 	0)
 	  quit=1
 	  ;;  
 	*)
-	  message="Vous n'avez pas le droit d'être ici!"
+	  message="Valeur incorrecte entrée"
+	  dialog --msgbox "$message" 0 0
 	  ;;
 	esac
 }
+
+while getopts "q" opt; do
+  case $opt in
+    q)
+      echo "Passage en mode silencieux"
+	  exec 2>/dev/null	
+	  beQuiet
+	  #Rediriger les erreurs vers le null
+      ;;
+    \?)
+      echo "Option non reconnue: -$OPTARG"
+      ;;
+  esac
+done
 
 quit=0
 while [ $quit -eq 0 ]; do

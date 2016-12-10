@@ -2,6 +2,7 @@
 DATE=`date +%Y-%m-%d:%H:%M:%S`
 QUIETFLAG=0
 TRY=3
+WHERETO="/home/$USER/got"
 
 function importGPG {
 	curl --retry $TRY "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key
@@ -19,8 +20,8 @@ function importGPG {
 }
 
 function initFolder {
-	if [ ! -d "/home/$USER/got" ]; then
-		mkdir "/home/$USER/got"			
+	if [ ! -d "$WHERETO" ]; then
+		mkdir "$WHERETO"			
 	fi
 }
 
@@ -31,7 +32,7 @@ function checkFiles () {
 	if [ -f "$FILETMP" ]; then				
 		rm $FILETMP		
 	fi
-	touch "/home/$USER/got/$FILETMP"
+	touch "$WHERETO/$FILETMP"
 }
 
 #1 = ligne en cours du fichier curlRes2 
@@ -43,43 +44,30 @@ function formatSyno () {
 		SYNO2="${BASH_REMATCH[2]}"
 		FILETMP='Saison '$2' Episode '$3'.txt'
 		if [[ "$SYNO1" != "" ]]; then
-			echo "$SYNO1">>"/home/$USER/got/$FILETMP"		
+			echo "$SYNO1">>"$WHERETO/$FILETMP"		
 		fi
 		if [[ "$SYNO2" != "" ]]; then
-			echo "$SYNO2">>"/home/$USER/got/$FILETMP"
+			echo "$SYNO2">>"$WHERETO/$FILETMP"
 		fi
 	fi
 }
 
-#1 = saison
-#2 = episode
-function checkGPG {
-	echo $(gpg --verify /home/$USER/got/PGP_S$1E$2)
+#Permet de rendre la fonction silencieuse. On initialise le fichier de rejets
+function beQuiet {
+	QUIETFLAG=1
+	if [ -f "$Rejets" ]; then				
+		rm $Rejets		
+	fi
+	touch Rejets
+	echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Rejets
 }
 
 #Option -q : quiet: La sortie d'erreur n'est pas affichée, si des fichiers ne peuvent être vérifié on remplit un fichier
 # qui sera envoyé par mail
-while getopts "q" opt; do
-  case $opt in
-    q)
-      echo "Passage en mode silencieux"
-	  exec 2>/dev/null	
-	  QUIETFLAG=1
-	  if [ -f "$Rejets" ]; then				
-		rm $Rejets		
-	  fi
-	  touch Rejets
-	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Rejets
-	  #Rediriger les erreurs vers le null
-      ;;
-    \?)
-      echo "Option non reconnue: -$OPTARG"
-      ;;
-  esac
-done
 
 
-#Fonction principale qui lance le téléchargement de tous les programmes
+#Fonction principale qui lance le téléchargement de tous les synopsis
+# $1 : Si on est en mode quiet(q) ou bruyant(b) 
 function getSyno {
 	IFS=$'\n'
 	curl 'https://daenerys.xplod.fr/synopsis.php' | grep -e '"synopsis.php' | grep -E '<a.*>(.*)</a>' > curlRes
@@ -93,21 +81,22 @@ function getSyno {
 			SAISON="${BASH_REMATCH[1]}"		
 			EPISODE="${BASH_REMATCH[2]}"
 			#Récupération PGP		
-			wget "https://daenerys.xplod.fr/supsyn.php?e=$EPISODE&s=$SAISON" -O "/home/$USER/got/"'PGP_S'$SAISON'E'$EPISODE -P "/home/$USER/got/"
+			wget "https://daenerys.xplod.fr/supsyn.php?e=$EPISODE&s=$SAISON" -O "$WHERETO/"'PGP_S'$SAISON'E'$EPISODE -P "$WHERETO/"
 
-			$(gpg --verify /home/$USER/got/PGP_S${SAISON}E${EPISODE})
+			$(gpg --verify $WHERETO/PGP_S${SAISON}E${EPISODE})
 			checkGPG=`echo $?`
-			#Récupération synopsis si on a une bonne signature
+			#Suppression des gpg si on a une mauvaise signature
+			curl "https://daenerys.xplod.fr/synopsis.php?s=$SAISON&e=$EPISODE" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
+				
+			while read -u 10 d; do
+				formatSyno $d $SAISON $EPISODE
+			done 10<curlRes2
+
 			if [ "$checkGPG" = "0" ]; then
 				echo "NO HACKERINO HERE"
-				checkFiles $SAISON $EPISODE
-				curl "https://daenerys.xplod.fr/synopsis.php?s=$SAISON&e=$EPISODE" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
-				
-				while read -u 10 d; do
-					formatSyno $d $SAISON $EPISODE
-				done 10<curlRes2
+
 			else
-				echo "YES HACKERINO HERE"
+				rm $WHERETO/PGP_S${SAISON}E${EPISODE}
 				if [ "$QUIETFLAG" = "1" ]; then
 					#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 					echo "Saison $SAISON Episode $EPISODE.txt" >> Rejets
