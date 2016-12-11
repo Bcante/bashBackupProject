@@ -41,14 +41,14 @@ function aiguillageMainMenu () {
 function parametrage {
 	local choixParam=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Retour" \
-		"1" "Éditer le fichier contenant les dossiers à sauvegarder" \
-		"2" "Spécifier un nouveau dossier de sortie")
+		"1" "Modifier les dossiers à sauvegarder" \
+		"2" "Modifier le dossier de destination")
 	case $choixParam in
 		1)
 		  nano confFile
 		  ;;
 		2)
-		  local newDir=$(dialog --title --stdout "Nouveau dir de sortie" --dselect /home/$USER/ 0 0)
+		  local newDir=$(dialog --title --stdout "Nouveau dossier de destination" --dselect /home/$USER/ 0 0)
 		  #Reste à modifier la ligne correspondante dans le fichier de conf...
 		  ;;
 		*)
