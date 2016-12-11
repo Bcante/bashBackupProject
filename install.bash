@@ -20,6 +20,7 @@ if [ $user != "root" ]; then
 fi
 
 ## Installation des composants requis
+dialog --prgbox "apt-get -y update" 40 100
 dialog --prgbox "apt-get -y install tar gnupg2 dialog curl wget sed sendmail mailutils sendmail-bin" 40 100
 
 #source confMail.bash
