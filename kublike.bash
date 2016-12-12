@@ -131,20 +131,18 @@ function readPaths {
 
 # Création du nom de la sauvegarde
 function chooseBackupName {
-	local name=${backupdir}${DATE}.tar.gz
+	name=${backupdir}${DATE}.tar.gz
 	# Différence entre deux backups effectuées au même moment
 	if [ -f $name ]; then
 		local count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
 		name=${backupdir}${DATE}_${count}.tar.gz
 	fi
 	# echo pour return des int (exit code) echo pour retourner des Strings catch avec $(function)
-	echo $name
 }
 
 # Création de la sauvegarde
 function doTheTar {
-	# TODO : faire une redirection des erreurs dans une variable pour l'afficher dans le logger
-	local error="$(tar -zcvf "$(chooseBackupName)" --files-from $1 -C / home/${USER}/Got 2>&1 > /dev/null)"
+	local error="$(tar -zcvf "$name" --files-from $1 -C / home/${USER}/Got 2>&1 > /dev/null)"
 	if ! [ -z "$error" ]; then
 		logger "$error"
 	fi
@@ -181,6 +179,7 @@ function doTheBackup {
 conf="backup.conf"
 backupdir="var/backups/"
 DATE=$(date +%Y-%m-%d_%H-%M)
+name=""
 
 ###############################
 ## Source des autres scritps ##
@@ -196,3 +195,5 @@ doTheBackup "$@"
 # TODO : tester avec des chemins absolus
 # TODO : vérifier que les valeurs retournées sont bien catch
 # TODO : Créer les fichiers de base s'ils n'existent pas
+# TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autrees
+# TODO : Refactor la comparaison de backups pour eviter les problèmes
