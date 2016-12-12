@@ -98,10 +98,10 @@ function readPaths {
 	local error=""
 	# Lecture du fichier contenant les différents chemins à sauvegarder
 	while read -r line; do
-		if [ -f $line ] || [ -d $line ]; then
-			if [ -r $line ]; then
-				if [ -z $found ]; then
-					found=$line
+		if [ -f "$line" ] || [ -d "$line" ]; then
+			if [ -r "$line" ]; then
+				if [ -z "$found" ]; then
+					found="$line"
 				else
 					found="${found} ${line}"
 				fi
@@ -115,7 +115,7 @@ function readPaths {
 		fi
 	done <<< "$conf";
 	if [ -z $found ]; then
-		logger "Aucun fichier n'a été trouvé" 1
+		logger "Aucun fichier n'a été trouvé, vérifiez que le fichier de configuration contient au moins un fichier" 1
 	else	
 		# TODO Faire fonctionner en ajoutant les synopsis de got aux archives
 		doTheTar "$found"
@@ -131,13 +131,11 @@ function readPaths {
 
 # Création du nom de la sauvegarde
 function chooseBackupName {
-	local date=$(date +%Y-%m-%d_%H-%M)
-	local name=${backupdir}${date}.tar.gz
-	
+	local name=${backupdir}${DATE}.tar.gz
 	# Différence entre deux backups effectuées au même moment
 	if [ -f $name ]; then
 		local count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
-		name=${backupdir}${date}_${count}.tar.gz
+		name=${backupdir}${DATE}_${count}.tar.gz
 	fi
 	# echo pour return des int (exit code) echo pour retourner des Strings catch avec $(function)
 	echo $name
@@ -161,11 +159,13 @@ function clearOldBackups {
 		`rm ${backupdir}$file`
 		returnCode=$?
 	fi
-	if [ "$returnCode" -eq 0 ]; then
-		dialog --msgbox "La sauvegarde est terminée" 0 0
-	else
-		logger "Erreur lors du nettoyage de l'historique" 5
-	fi	
+	if [ $QUIETFLAG -eq 0 ]; then
+		if [ "$returnCode" -eq 0 ]; then
+			dialog --msgbox "La sauvegarde est terminée" 0 0
+		else
+			logger "Erreur lors du nettoyage de l'historique" 5
+		fi	
+	fi
 }
 
 function doTheBackup {
@@ -176,16 +176,17 @@ function doTheBackup {
 }
 
 ###############################
-## Source des autres scritps ##
-###############################
-
-source getSynopsis.bash
-
-###############################
 ## Préparation des variables ##
 ###############################
 conf="backup.conf"
 backupdir="var/backups/"
+DATE=$(date +%Y-%m-%d_%H-%M)
+
+###############################
+## Source des autres scritps ##
+###############################
+
+source getSynopsis.bash
 
 ############################
 ## Execution du programme ##
