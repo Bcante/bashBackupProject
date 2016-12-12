@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Installation de dialog pour pouvoir procéder à l'installation de SwagCityRocker..."
+
 ## Vérifie qu'on est root
 user=$(whoami)
 if [ $user != "root" ]; then
@@ -7,6 +7,8 @@ if [ $user != "root" ]; then
 			\nVeuillez exécuter ce script en tant de super utilisateur."
 	exit 1
 fi
+
+echo "Installation de dialog pour pouvoir procéder à l'installation de SwagCityRocker..."
 apt-get -y install dialog
 
 dialog --yes-label "Continuer" --no-label "Annuler"\
