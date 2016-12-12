@@ -61,3 +61,7 @@ EOF
 dialog --stdout\
 	--prgbox "gpg2 --verbose --batch --gen-key config" 20 70
 rm config
+
+## Création des fichiers et dossiers de config
+mkdir ./backups
+touch backup.conf
