@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #Imporation des fichiers bashs contenant les fonctions qui nous intéressent
+source kublike.bash
 source uploadBackup.bash
 source getSynopsis.bash
 
@@ -10,8 +11,7 @@ function aiguillageMainMenu () {
 	local message=""
 	case $choix in
 		1)
-		  message="Fonctions Maxime."
-		  dialog --msgbox "$message" 0 0
+		  doTheBackup
 		  ;;
 		2)
 		  graphUpMyFile -q
