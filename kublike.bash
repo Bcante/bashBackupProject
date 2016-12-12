@@ -15,17 +15,18 @@
 logger () {
 	# if (logger_is_enabled)
 		# log_to_file
-	echo $#
-	if [ $# -ge 1 ]; then
-		if ! [ -z "$1" ]; then 
-			dialog --title "Une erreur à été rencontrée" --msgbox "${1}" 0 0
+	if [ $QUIETFLAG -eq 0 ]; then
+		if [ $# -ge 1 ]; then
+			if ! [ -z "$1" ]; then 
+				dialog --title "Une erreur à été rencontrée" --msgbox "${1}" 0 0
+			fi
+		else
+			logger "Logger called but no params found" 1
 		fi
-	else
-		logger "Logger called but no params found" 1
-	fi
-	if [ $# -eq 2 ]; then
-		if ! [ -z "$2" ]; then
-			exit $2
+		if [ $# -eq 2 ]; then
+			if ! [ -z "$2" ]; then
+				exit $2
+			fi
 		fi
 	fi
 }
@@ -97,10 +98,10 @@ function readPaths {
 	local error=""
 	# Lecture du fichier contenant les différents chemins à sauvegarder
 	while read -r line; do
-		if [ -f $line ] || [ -d $line ]; then
-			if [ -r $line ]; then
-				if [ -z $found ]; then
-					found=$line
+		if [ -f "$line" ] || [ -d "$line" ]; then
+			if [ -r "$line" ]; then
+				if [ -z "$found" ]; then
+					found="$line"
 				else
 					found="${found} ${line}"
 				fi
@@ -114,12 +115,12 @@ function readPaths {
 		fi
 	done <<< "$conf";
 	if [ -z $found ]; then
-		logger "Aucun fichier n'a été trouvé" 1
+		logger "Aucun fichier n'a été trouvé, vérifiez que le fichier de configuration contient au moins un fichier" 1
 	else	
 		# TODO Faire fonctionner en ajoutant les synopsis de got aux archives
 		doTheTar "$found"
 	fi
-	if ! [ -z "$error" ]; then
+	if [ $QUIETFLAG -eq 0 ] && ! [ -z "$error" ]; then
 		dialog --title "Tous les fichiers n'ont pas étés trouvés, continuer ?" --yesno "$error" 0 0
 		local answer=$?
 		if [ $answer -eq  0 ]; then
@@ -130,21 +131,18 @@ function readPaths {
 
 # Création du nom de la sauvegarde
 function chooseBackupName {
-	local date=$(date +%Y-%m-%d_%H-%M)
-	local name=${backupdir}${date}.tar.gz
-	
+	name=${backupdir}${DATE}.tar.gz
 	# Différence entre deux backups effectuées au même moment
 	if [ -f $name ]; then
-		count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
-		name=${backupdir}${date}_${count}.tar.gz
+		local count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
+		name=${backupdir}${DATE}_${count}.tar.gz
 	fi
-	echo $name
+	# echo pour return des int (exit code) echo pour retourner des Strings catch avec $(function)
 }
 
 # Création de la sauvegarde
 function doTheTar {
-	# TODO : faire une redirection des erreurs dans une variable pour l'afficher dans le logger
-	local error="$(tar -zcvf "$(chooseBackupName)" --files-from $1 -C / home/${USER}/Got 2>&1 > /dev//null)"
+	local error="$(tar -zcvf "$name" --files-from $1 -C / home/${USER}/Got 2>&1 > /dev/null)"
 	if ! [ -z "$error" ]; then
 		logger "$error"
 	fi
@@ -153,9 +151,18 @@ function doTheTar {
 # Maintien du nombre de backup a 100 maximum
 function clearOldBackups {
 	local backupCount=`ls $backupdir | grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(_[0-9]+)?\.tar\.gz" | wc -l`
+	local returnCode=0
 	if [ $backupCount -ge 100 ]; then
 		file=`ls -tr backups | head -n 1`
 		`rm ${backupdir}$file`
+		returnCode=$?
+	fi
+	if [ $QUIETFLAG -eq 0 ]; then
+		if [ "$returnCode" -eq 0 ]; then
+			dialog --msgbox "La sauvegarde est terminée" 0 0
+		else
+			logger "Erreur lors du nettoyage de l'historique" 5
+		fi	
 	fi
 }
 
@@ -170,13 +177,23 @@ function doTheBackup {
 ## Préparation des variables ##
 ###############################
 conf="backup.conf"
-backupdir="backups/"
+backupdir="var/backups/"
+DATE=$(date +%Y-%m-%d_%H-%M)
+name=""
+
+###############################
+## Source des autres scritps ##
+###############################
+
+source getSynopsis.bash
 
 ############################
 ## Execution du programme ##
 ############################
 doTheBackup "$@"
 
-# TODO : penser à utiliser des local
-# TODO : fonction magique
 # TODO : tester avec des chemins absolus
+# TODO : vérifier que les valeurs retournées sont bien catch
+# TODO : Créer les fichiers de base s'ils n'existent pas
+# TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autrees
+# TODO : Refactor la comparaison de backups pour eviter les problèmes
