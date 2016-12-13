@@ -1,11 +1,12 @@
 #!/bin/bash
+
 function importGPG {
 	curl --retry $TRY "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key
 	local curlok=$(echo $?)
 	if [ "$curlok" != "0" ]; then
 		if [ "$QUIETFLAG" = "1" ]; then
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-			echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." cantebenoit@hotmail.com #mailto
+			echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." $mail #mailto
 		else
 			echo "Le site est indisponible, après avoir essayé $TRY fois."
 		fi
@@ -58,7 +59,26 @@ function synoBeQuiet {
 		rm $Rejets		
 	fi
 	touch Rejets
-	echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Rejets
+	#On récupère l'adresse mail à qui envoyer le fichier grâce à notre backup.conf.
+	getMail
+}
+
+function getMail {
+	#En cas d'adresse mail invalide l'opération se déroule quand même, mais n'envoie pas de mail
+	local oldIFS=$IFS
+	IFS=$'\n'
+	regex="MAIL\s(.*)"
+	for i in `cat backup.conf`; do
+		if [[ $i =~ $regex ]]; then
+			tmpMail="${BASH_REMATCH[1]}"
+			if [[ $tmpMail =~ $MAILREGEX ]]; then
+				mail=$tmpMail
+			else	
+				INCORRECT_MAIL=1
+			fi
+		fi
+	done
+	IFS=$oldIFS
 }
 
 #Option -q : quiet: La sortie d'erreur n'est pas affichée, si des fichiers ne peuvent être vérifié on remplit un fichier
@@ -89,7 +109,7 @@ function getSyno {
 				
 			while read -u 10 d; do
 				echo "CALL CHECKFILES???"
-				checkFiles $saison $episode #Permet de supprimer le fichier texte si il existe déjà
+				checkFiles $saison $episode #TODO CA MARCHE PAS DE OUF
 				formatSyno $d $saison $episode
 			done 10<curlRes2
 
@@ -106,7 +126,7 @@ function getSyno {
 	#Si on est en mode quiet on s'envoie le résultat par mail
 	if [ "$QUIETFLAG" = "1" ]; then
 		#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-		cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" cantebenoit@hotmail.com #MATILO
+		cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
 		rm Rejets
 	fi
 }
@@ -115,7 +135,8 @@ DATE=`date +%Y-%m-%d:%H:%M:%S`
 QUIETFLAG=0
 TRY=3
 WHERETO="/home/$USER/Got"
-MAIL=
+MAILREGEX="[A-Za-z0-9]+@[a-zA-Z]+\.[a-z]+"
+INCORRECT_MAIL=0
 
 initFolder
 while getopts "q" opt; do

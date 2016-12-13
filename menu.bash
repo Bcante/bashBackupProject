@@ -69,7 +69,7 @@ function parametrage {
 		3)
 		  #On passe par une variable locale en attendant d'être sûr que c'est une adresse mail valide
 		  #Et on oublie pas d'overwrite le fichier de configuration...
-	      local mailTmp=$(dialog --stdout --inputbox "Nouvelle adresse mail" 0 0)
+	      local mailTmp=$(dialog --stdout --inputbox "Nouvelle adresse mail" 0 0 "$mail")
 	      
 	      if [[ "$mailTmp" =~ $MAILREGEX ]]; then
 			mail="$mailTmp"
