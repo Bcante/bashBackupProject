@@ -56,9 +56,11 @@ function parametrage {
 		2)
 		  backupdir=$(dialog --title --stdout "Nouveau dossier de destination" --dselect /home/$USER/ 0 0)
 			while read -u 10 p; do
+			local ligne=$p
 			local regex="BACKUPDIR\s(.+)"
-			if [[ $p =~ $regex ]]; then
+			if [[ $ligne =~ $regex ]]; then
 				local oldValue="${BASH_REMATCH[1]}"
+				#On doit délimiter avec des @ au lieu de / car sinon les / du chemins seront mal interprétés par bash
 				sed -i -e "s@$oldValue@$backupdir@g" backup.conf
 				#TODO: vérifier si le chemin fini bien par un "/" ?
 			fi
@@ -73,10 +75,11 @@ function parametrage {
 			mail="$mailTmp"
 
 			while read -u 10 p; do
+			local ligne=$p
 			local regex="MAIL\s(.+)"
-			if [[ $p =~ $regex ]]; then
+			if [[ $ligne =~ $regex ]]; then
 				local oldValue="${BASH_REMATCH[1]}"
-				sed -i -e "s@$oldValue@$backupdir@g" backup.conf
+				sed -i -e "s/$oldValue/$mail/g" backup.conf
 				#TODO: vérifier si le chemin fini bien par un "/" ?
 			fi
 			done 10<backup.conf
@@ -92,7 +95,7 @@ function parametrage {
 
 #Se base sur le fichier backup.conf pour remplir les valeurs globales qui nous seront utiles pour la suite du programme
 function init {
-	while read -u 10 p; do
+	while read -u 10 p; do #TODO faire sauter la ligne EOF
 		#Récupération de l'adresse mail
 		local regex="MAIL\s(.*)" 
 		if [[ $p =~ $regex ]]; then
