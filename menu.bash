@@ -71,6 +71,16 @@ function parametrage {
 	      
 	      if [[ "$mailTmp" =~ $MAILREGEX ]]; then
 			mail="$mailTmp"
+
+			while read -u 10 p; do
+			local regex="MAIL\s(.+)"
+			if [[ $p =~ $regex ]]; then
+				local oldValue="${BASH_REMATCH[1]}"
+				sed -i -e "s@$oldValue@$backupdir@g" backup.conf
+				#TODO: vérifier si le chemin fini bien par un "/" ?
+			fi
+			done 10<backup.conf
+
 		  else
 		  	dialog --title "Adresse mail invalide" --msgbox "Merci d'entrer une adresse mail à peu près valide." 0 0
 		  fi
