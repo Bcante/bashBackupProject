@@ -28,9 +28,9 @@ function initFolder {
 function checkFiles () {
 	local filetmp='Saison_'$1'_Episode_'$2'.txt'
 	if [ -f "$WHERETO/$filetmp" ]; then				
-		rm $filetmp
+		rm "$WHERETO/$filetmp"
 	fi
-	echo "Ah non ça existe pas $WHERETO/$filetmp"
+	echo "$WHERETO/$filetmp"
 	touch "$WHERETO/$filetmp"
 }
 
@@ -53,7 +53,7 @@ function formatSyno () {
 
 #Permet de rendre la fonction silencieuse. On initialise le fichier de rejets
 function synoBeQuiet {
-	exec 2>/dev/null
+	#exec 2>/dev/null
 	QUIETFLAG=1
 	if [ -f "$Rejets" ]; then				
 		rm $Rejets		
