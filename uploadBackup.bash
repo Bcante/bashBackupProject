@@ -85,10 +85,10 @@ function displayUploadedFiles {
 		for p in `cat sent`
 		do
 			local regex="(.*)\s.*"
-			    if [[ $p =~ $regex ]]; then
-			    	count=$[count+1]
-		       		menuOptions="${menuOptions} ${BASH_REMATCH[1]} ${count}"
-			    fi
+		    if [[ $p =~ $regex ]]; then
+		    	count=$[count+1]
+	       		menuOptions="${menuOptions} ${BASH_REMATCH[1]} ${count}"
+		    fi
 		done
 		local IFS=$oldIFS
 

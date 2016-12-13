@@ -115,7 +115,7 @@ DATE=`date +%Y-%m-%d:%H:%M:%S`
 QUIETFLAG=0
 TRY=3
 WHERETO="/home/$USER/Got"
-MAILTO=
+MAIL=
 
 initFolder
 while getopts "q" opt; do

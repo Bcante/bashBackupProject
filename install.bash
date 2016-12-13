@@ -3,12 +3,12 @@
 ## Vérifie qu'on est root
 user=$(whoami)
 if [ $user != "root" ]; then
-	echo "Ce script doit effectuer des modifications sur votre système, il a donc besoin de tous les droits.\
-			\nVeuillez exécuter ce script en tant de super utilisateur."
+	printf "Ce script doit effectuer des modifications sur votre système, il a donc besoin de tous les droits.\
+			\nVeuillez exécuter ce script en tant de super utilisateur.\n"
 	exit 1
 fi
 
-echo "Installation de dialog pour pouvoir procéder à l'installation de SwagCityRockers..."
+printf "Installation de dialog pour pouvoir procéder à l'installation de SwagCityRockers...\n"
 apt-get -y install dialog
 
 dialog --yes-label "Continuer" --no-label "Annuler"\
@@ -65,3 +65,5 @@ rm config
 ## Création des fichiers et dossiers de config
 mkdir ./backups
 touch backup.conf
+echo "MAIL xxx">>backup.conf
+echo "OUTPUTDIR xxx">>backup.conf
