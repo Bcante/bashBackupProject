@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Imporation des fichiers bashs contenant les fonctions qui nous intéressent
-source kublike.bash
+# source kublike.bash Commenté pour pas avoir le file not found / backupdir not found
 source uploadBackup.bash
 source getSynopsis.bash
 
@@ -14,7 +14,7 @@ function aiguillageMainMenu () {
 		  doTheBackup
 		  ;;
 		2)
-		  graphUpMyFile -q
+		  graphUpMyFile
 		  ;;
 		3)
 		  getMyFile
@@ -36,8 +36,8 @@ function aiguillageMainMenu () {
 	esac
 }
 
-#1) Permet de changer les fichier/dossiers a svg
-#2) Permet de spécifier le dossier de sortie
+#option 1) Permet de changer les fichier/dossiers a svg
+#option 2) Permet de spécifier le dossier de sortie
 function parametrage {
 	local choixParam=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Retour" \
@@ -48,7 +48,7 @@ function parametrage {
 		  nano confFile
 		  ;;
 		2)
-		  local newDir=$(dialog --title --stdout "Nouveau dossier de destination" --dselect /home/$USER/ 0 0)
+		  NEWDIR=$(dialog --title --stdout "Nouveau dossier de destination" --dselect /home/$USER/ 0 0)
 		  #Reste à modifier la ligne correspondante dans le fichier de conf...
 		  ;;
 		*)
@@ -56,23 +56,6 @@ function parametrage {
 	esac
 	
 }
-
-
-
-
-while getopts "q" opt; do
-  case $opt in
-    q)
-      echo "Passage en mode silencieux"
-	  exec 2>/dev/null	
-	  synoBeQuiet
-	  #Rediriger les erreurs vers le null
-      ;;
-    \?)
-      echo "Option non reconnue: -$OPTARG"
-      ;;
-  esac
-done
 
 quit=0
 choix=0

@@ -2,17 +2,20 @@
 DATE=`date +%Y-%m-%d:%H:%M:%S`
 QUIETFLAG=0
 TRY=3
-WHERETO="/home/$USER/got"
+WHERETO="/home/$USER/Got"
+MAILTO=
 
 function importGPG {
 	curl --retry $TRY "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key
 	curlok=$(echo $?)
 	if [ "$curlok" != "0" ]; then
-		echo "Le site est indisponible, après avoir essayé $TRY fois."
 		if [ "$QUIETFLAG" = "1" ]; then
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-			echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." cantebenoit@hotmail.com
+			echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." cantebenoit@hotmail.com #mailto
+		else
+			echo "Le site est indisponible, après avoir essayé $TRY fois."
 		fi
+
 		exit 1
 	fi
 
@@ -28,11 +31,12 @@ function initFolder {
 #1 : Saison
 #2 : Episode
 function checkFiles () {
-	FILETMP='Saison '$1' Episode '$2'.txt'
-	if [ -f "$FILETMP" ]; then				
-		rm $FILETMP		
+	local filetmp='Saison_'$1'_Episode_'$2'.txt'
+	if [ -f "$WHERETO/$filetmp" ]; then				
+		rm $filetmp
 	fi
-	touch "$WHERETO/$FILETMP"
+		echo "Ah non ça existe pas $WHERETO/$filetmp"
+	touch "$WHERETO/$filetmp"
 }
 
 #1 = ligne en cours du fichier curlRes2 
@@ -42,18 +46,19 @@ function formatSyno () {
 	if [[ $1 =~ $REGEXSYNO ]]; then
 		SYNO1="${BASH_REMATCH[1]}"		
 		SYNO2="${BASH_REMATCH[2]}"
-		FILETMP='Saison '$2' Episode '$3'.txt'
+		local filetmp='Saison_'$2'_Episode_'$3'.txt'
 		if [[ "$SYNO1" != "" ]]; then
-			echo "$SYNO1">>"$WHERETO/$FILETMP"		
+			echo "$SYNO1">"$WHERETO/$filetmp"		
 		fi
 		if [[ "$SYNO2" != "" ]]; then
-			echo "$SYNO2">>"$WHERETO/$FILETMP"
+			echo "$SYNO2">>"$WHERETO/$filetmp"
 		fi
 	fi
 }
 
 #Permet de rendre la fonction silencieuse. On initialise le fichier de rejets
 function synoBeQuiet {
+	exec 2>/dev/null
 	QUIETFLAG=1
 	if [ -f "$Rejets" ]; then				
 		rm $Rejets		
@@ -89,6 +94,8 @@ function getSyno {
 			curl "https://daenerys.xplod.fr/synopsis.php?s=$SAISON&e=$EPISODE" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
 				
 			while read -u 10 d; do
+				echo "CALL CHECKFILES???"
+				checkFiles $SAISON $EPISODE #Permet de supprimer le fichier texte si il existe déjà
 				formatSyno $d $SAISON $EPISODE
 			done 10<curlRes2
 
@@ -105,17 +112,16 @@ function getSyno {
 	#Si on est en mode quiet on s'envoie le résultat par mail
 	if [ "$QUIETFLAG" = "1" ]; then
 		#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-		echo "Envoi du mail en cours..."
-		cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" cantebenoit@hotmail.com
+		cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" cantebenoit@hotmail.com #MATILO
 		rm Rejets
 	fi
 }
-
+initFolder
 while getopts "q" opt; do
   case $opt in
     q)
-      echo "Passage en mode silencieux"
 	  synoBeQuiet
+	  getSyno
 	  if [ -f "$Rejets" ]; then				
 		rm $Rejets		
 	  fi
