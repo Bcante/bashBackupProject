@@ -6,7 +6,9 @@ function importGPG {
 	if [ "$curlok" != "0" ]; then
 		if [ "$QUIETFLAG" = "1" ]; then
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-			echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." $mail #mailto
+			if [ "INCORRECT_MAIL_FLAG" != "1" ]; then
+				echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." $mail #mailto	
+			fi
 		else
 			echo "Le site est indisponible, après avoir essayé $TRY fois."
 		fi
@@ -26,11 +28,10 @@ function initFolder {
 #1 : Saison
 #2 : Episode
 function checkFiles () {
-	local filetmp='Saison_'$1'_Episode_'$2'.txt'
+	local filetmp='Saison '$1' Episode '$2'.txt'
 	if [ -f "$WHERETO/$filetmp" ]; then				
 		rm "$WHERETO/$filetmp"
 	fi
-	echo "$WHERETO/$filetmp"
 	touch "$WHERETO/$filetmp"
 }
 
@@ -41,7 +42,7 @@ function formatSyno () {
 	if [[ $1 =~ $REGEXSYNO ]]; then
 		local syn01="${BASH_REMATCH[1]}"		
 		local syn02="${BASH_REMATCH[2]}"
-		local filetmp='Saison_'$2'_Episode_'$3'.txt'
+		local filetmp='Saison '$2' Episode '$3'.txt'
 		if [[ "$syn01" != "" ]]; then
 			echo "$syn01">"$WHERETO/$filetmp"		
 		fi
@@ -53,7 +54,7 @@ function formatSyno () {
 
 #Permet de rendre la fonction silencieuse. On initialise le fichier de rejets
 function synoBeQuiet {
-	#exec 2>/dev/null
+	exec 2>/dev/null
 	QUIETFLAG=1
 	if [ -f "$Rejets" ]; then				
 		rm $Rejets		
@@ -74,7 +75,7 @@ function getMail {
 			if [[ $tmpMail =~ $MAILREGEX ]]; then
 				mail=$tmpMail
 			else	
-				INCORRECT_MAIL=1
+				INCORRECT_MAIL_FLAG=1
 			fi
 		fi
 	done
@@ -108,7 +109,6 @@ function getSyno {
 			curl "https://daenerys.xplod.fr/synopsis.php?s=$saison&e=$episode" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
 				
 			while read -u 10 d; do
-				echo "CALL CHECKFILES???"
 				checkFiles $saison $episode #TODO CA MARCHE PAS DE OUF
 				formatSyno $d $saison $episode
 			done 10<curlRes2
@@ -125,9 +125,11 @@ function getSyno {
 	
 	#Si on est en mode quiet on s'envoie le résultat par mail
 	if [ "$QUIETFLAG" = "1" ]; then
-		#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-		cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
-		rm Rejets
+		if [ "$INCORRECT_MAIL_FLAG" != "1" ]; then
+			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
+			cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
+			rm Rejets
+		fi
 	fi
 }
 
@@ -136,18 +138,15 @@ QUIETFLAG=0
 TRY=3
 WHERETO="/home/$USER/Got"
 MAILREGEX="[A-Za-z0-9]+@[a-zA-Z]+\.[a-z]+"
-INCORRECT_MAIL=0
+INCORRECT_MAIL_FLAG=0
 
 initFolder
 while getopts "q" opt; do
   case $opt in
     q)
 	  synoBeQuiet
-	  getSyno
-	  if [ -f "$Rejets" ]; then				
-		rm $Rejets		
-	  fi
-	  touch Rejets
+	  getSyno				
+	  rm $Rejets
 	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Rejets
 	  #Rediriger les erreurs vers le null
 		;;
