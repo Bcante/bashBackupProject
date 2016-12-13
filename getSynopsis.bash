@@ -1,13 +1,7 @@
 #!/bin/bash
-DATE=`date +%Y-%m-%d:%H:%M:%S`
-QUIETFLAG=0
-TRY=3
-WHERETO="/home/$USER/Got"
-MAILTO=
-
 function importGPG {
 	curl --retry $TRY "https://daenerys.xplod.fr/supersynopsis_signature.pub" > pubkey.key
-	curlok=$(echo $?)
+	local curlok=$(echo $?)
 	if [ "$curlok" != "0" ]; then
 		if [ "$QUIETFLAG" = "1" ]; then
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
@@ -35,7 +29,7 @@ function checkFiles () {
 	if [ -f "$WHERETO/$filetmp" ]; then				
 		rm $filetmp
 	fi
-		echo "Ah non ça existe pas $WHERETO/$filetmp"
+	echo "Ah non ça existe pas $WHERETO/$filetmp"
 	touch "$WHERETO/$filetmp"
 }
 
@@ -44,14 +38,14 @@ function checkFiles () {
 #3 = episode
 function formatSyno () {
 	if [[ $1 =~ $REGEXSYNO ]]; then
-		SYNO1="${BASH_REMATCH[1]}"		
-		SYNO2="${BASH_REMATCH[2]}"
+		local syn01="${BASH_REMATCH[1]}"		
+		local syn02="${BASH_REMATCH[2]}"
 		local filetmp='Saison_'$2'_Episode_'$3'.txt'
-		if [[ "$SYNO1" != "" ]]; then
-			echo "$SYNO1">"$WHERETO/$filetmp"		
+		if [[ "$syn01" != "" ]]; then
+			echo "$syn01">"$WHERETO/$filetmp"		
 		fi
-		if [[ "$SYNO2" != "" ]]; then
-			echo "$SYNO2">>"$WHERETO/$filetmp"
+		if [[ "$syn02" != "" ]]; then
+			echo "$syn02">>"$WHERETO/$filetmp"
 		fi
 	fi
 }
@@ -75,7 +69,7 @@ function synoBeQuiet {
 function getSyno {
 	IFS=$'\n'
 	curl 'https://daenerys.xplod.fr/synopsis.php' | grep -e '"synopsis.php' | grep -E '<a.*>(.*)</a>' > curlRes
-	regex="s=([0-9]+).*e=([0-9]+).*Episode\s[0-9]+:\s(.+)<\/a>"
+	local regex="s=([0-9]+).*e=([0-9]+).*Episode\s[0-9]+:\s(.+)<\/a>"
 	REGEXSYNO="^([a-zA-Z].*)<|<p class=\"left-align light\">(.*)<"
 	importGPG
 
@@ -83,27 +77,27 @@ function getSyno {
 
 	while read -u 10 p; do
 		if [[ $p =~ $regex ]] ; then
-			SAISON="${BASH_REMATCH[1]}"		
-			EPISODE="${BASH_REMATCH[2]}"
+			local saison="${BASH_REMATCH[1]}"		
+			local episode="${BASH_REMATCH[2]}"
 			#Récupération PGP		
-			wget "https://daenerys.xplod.fr/supsyn.php?e=$EPISODE&s=$SAISON" -O "$WHERETO/"'PGP_S'$SAISON'E'$EPISODE -P "$WHERETO/"
+			wget "https://daenerys.xplod.fr/supsyn.php?e=$episode&s=$saison" -O "$WHERETO/"'PGP_S'$saison'E'$episode -P "$WHERETO/"
 
-			$(gpg --verify $WHERETO/PGP_S${SAISON}E${EPISODE})
-			checkGPG=`echo $?`
+			$(gpg --verify $WHERETO/PGP_S${saison}E${episode})
+			local checkGPG=`echo $?`
 			#Suppression des gpg si on a une mauvaise signature
-			curl "https://daenerys.xplod.fr/synopsis.php?s=$SAISON&e=$EPISODE" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
+			curl "https://daenerys.xplod.fr/synopsis.php?s=$saison&e=$episode" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
 				
 			while read -u 10 d; do
 				echo "CALL CHECKFILES???"
-				checkFiles $SAISON $EPISODE #Permet de supprimer le fichier texte si il existe déjà
-				formatSyno $d $SAISON $EPISODE
+				checkFiles $saison $episode #Permet de supprimer le fichier texte si il existe déjà
+				formatSyno $d $saison $episode
 			done 10<curlRes2
 
 			if [ "$checkGPG" = "1" ]; then
-				rm $WHERETO/PGP_S${SAISON}E${EPISODE}
+				rm $WHERETO/PGP_S${saison}E${episode}
 				if [ "$QUIETFLAG" = "1" ]; then
 					#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-					echo "PGP_S${SAISON}E${EPISODE}" >> Rejets
+					echo "PGP_S${saison}E${episode}" >> Rejets
 				fi
 			fi
 		fi
@@ -116,6 +110,13 @@ function getSyno {
 		rm Rejets
 	fi
 }
+
+DATE=`date +%Y-%m-%d:%H:%M:%S`
+QUIETFLAG=0
+TRY=3
+WHERETO="/home/$USER/Got"
+MAILTO=
+
 initFolder
 while getopts "q" opt; do
   case $opt in

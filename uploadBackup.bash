@@ -3,9 +3,9 @@ NAME="SwagCityRockers"
 
 #Fonction d'initialisation pour vérifier qu'on a bien notre associations de fichiers mis en ligne
 function init {
-	local FILETMP="sent"
+	local filetmp="sent"
 	if [ ! -f "$FILETMP" ]; then				
-		touch "$FILETMP"			
+		touch "$filetmp"			
 	fi
 }
 
@@ -34,7 +34,6 @@ function getMyFile () {
 	#Exemple: curl "https://daenerys.xplod.fr/backup/download.php?login=SwagCityRockers&hash=d5acf475af0ba81529cdd21d50b18be1"
 	#On part à la recherche du hash correspondant dans notre fichier
 	local fileToUpload=$(displayUploadedFiles)
-	echo "ftu: "$fileToUpload
 	local hash=""
 	local regex="$fileToUpload\s([a-zA-Z0-9]+)"
 	while read -u 10 p; do
@@ -78,25 +77,25 @@ function addToFile () {
 
 #On vérifie qu'il y au moins une ligne dans 'sent' sinon le menu provoquera une
 function displayUploadedFiles {
-		local MENU_OPTIONS=
-		local COUNT=0
+		local menuOptions=
+		local count=0
 		local fileToUpload=""
-		local OLDIFS=$IFS
+		local oldIFS=$IFS
 		local IFS=$'\n'
 		for p in `cat sent`
 		do
 			local regex="(.*)\s.*"
 			    if [[ $p =~ $regex ]]; then
-			    	COUNT=$[COUNT+1]
-		       		MENU_OPTIONS="${MENU_OPTIONS} ${BASH_REMATCH[1]} ${COUNT}"
+			    	count=$[count+1]
+		       		menuOptions="${menuOptions} ${BASH_REMATCH[1]} ${count}"
 			    fi
 		done
-		local IFS=$OLDIFS
+		local IFS=$oldIFS
 
-		if [ "$COUNT" != "0" ]; then
+		if [ "$count" != "0" ]; then
 			cmd=(dialog --menu "Quel fichier voulez vous récupérer?:" 22 76 16)
-			options=("${MENU_OPTIONS}:1")
-			local fileToUpload=$(dialog --stdout --menu "Sélectionner le fichier à récupérer depuis le cloud (tm)" 0 0 0 $MENU_OPTIONS)
+			options=("${menuOptions}:1")
+			local fileToUpload=$(dialog --stdout --menu "Sélectionner le fichier à récupérer depuis le cloud (tm)" 0 0 0 $menuOptions)
 			echo $fileToUpload
 		fi
 }

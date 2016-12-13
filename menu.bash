@@ -1,15 +1,18 @@
 #!/bin/bash
 
 #Imporation des fichiers bashs contenant les fonctions qui nous intéressent
-# source kublike.bash Commenté pour pas avoir le file not found / backupdir not found
+# source kublike.bash Commenté pour pas avoir le file not found / backupdir not found.
 source uploadBackup.bash
 source getSynopsis.bash
 
+QUIT=0
+CHOIX=0
+
 # $1 : L'option que l'utilisateur a rentré
 function aiguillageMainMenu () {
-	local choix=$1
+	local choixTmp=$1
 	local message=""
-	case $choix in
+	case $choixTmp in
 		1)
 		  doTheBackup
 		  ;;
@@ -26,12 +29,12 @@ function aiguillageMainMenu () {
 		  parametrage
 		  ;;
 		0)
-		  quit=1
+		  QUIT=1
 		  ;;  
 
 		#Quand l'utilisateur appuie sur "annuler"
 		"")
-		  quit=1
+		  QUIT=1
 		  ;;
 	esac
 }
@@ -57,17 +60,15 @@ function parametrage {
 	
 }
 
-quit=0
-choix=0
-while [ $quit -eq 0 ]; do
-	choix=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
+while [ $QUIT -eq 0 ]; do
+	CHOIX=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Quitter" \
 		"1" "Faire un Backup" \
 		"2" "Mettre en ligne un backup" \
 		"3" "Télécharger un backup" \
 		"4" "Télécharger les synopsis" \
 		"5" "Paramétres")
-	aiguillageMainMenu $choix
+	aiguillageMainMenu $CHOIX
 done
 echo "Au revoir"
 

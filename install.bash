@@ -8,7 +8,7 @@ if [ $user != "root" ]; then
 	exit 1
 fi
 
-echo "Installation de dialog pour pouvoir procéder à l'installation de SwagCityRocker..."
+echo "Installation de dialog pour pouvoir procéder à l'installation de SwagCityRockers..."
 apt-get -y install dialog
 
 dialog --yes-label "Continuer" --no-label "Annuler"\
@@ -27,20 +27,20 @@ dialog --prgbox "apt-get -y install tar gnupg2 curl wget sed sendmail mailutils 
 ## Préparation pour GPG
 nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 	--title "Configuration de gpg" \
-	--inputbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nEntrez votre nom pour signer les sauvegardes à votre nom :" 20 70)
+	--inputbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nEntrez votre nom pour signer les sauvegardes à votre nom :" 20 70)
 
 mail=$(dialog --stdout --no-cancel  --ok-label "Suivant" \
 	--title "Configuration de gpg" \
-	--inputbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nEntrez votre adresse email :" 20 70)
+	--inputbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nEntrez votre adresse email :" 20 70)
 ## faire un while pour vérifier que le mail est ok
 
 mdp=$(dialog --stdout --no-cancel  --ok-label "Suivant" \
 	--title "Configuration de gpg" \
-	--passwordbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nEntrez votre mot de passe :" 20 70)
+	--passwordbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nEntrez votre mot de passe :" 20 70)
 
 mdpverif=$(dialog --stdout --no-cancel  --ok-label "Terminer" \
 	--title "Configuration de gpg" \
-	--passwordbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nValidez votre mot de passe :" 20 70)
+	--passwordbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nValidez votre mot de passe :" 20 70)
 ## Faire un while pour vérifier que le mdp == la mdpverif
 
 cat >config <<EOF
