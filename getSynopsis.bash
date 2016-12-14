@@ -57,7 +57,7 @@ function synoBeQuiet {
 	exec 2>/dev/null
 	QUIETFLAG=1
 	if [ -f "$Errors.txt" ]; then				
-		rm Errors.txt		
+		rm Errors.txt
 	fi
 	touch Errors.txt
 	#On récupère l'adresse mail à qui envoyer le fichier grâce à notre backup.conf.

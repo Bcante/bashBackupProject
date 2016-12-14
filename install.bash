@@ -63,7 +63,7 @@ dialog --stdout\
 rm config
 
 ## Création des fichiers et dossiers de config
-mkdir ./backups
+mkdir /var/mesbackups
 touch backup.conf
-echo "MAIL xxx">>backup.conf
-echo "OUTPUTDIR xxx">>backup.conf
+echo "MAIL xxx">>parametres.conf
+echo "OUTPUTDIR /var/mesbackups">>parametres.conf

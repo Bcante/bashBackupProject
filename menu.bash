@@ -51,7 +51,7 @@ function parametrage {
 		"3" "Modifier l'adresse mail d'envoi silencieux")
 	case $choixParam in
 		1)
-		  nano confFile
+		  nano backup.conf
 		  ;;
 		2)
 		  backupdir=$(dialog --title --stdout "Nouveau dossier de destination" --dselect /home/$USER/ 0 0)
@@ -61,10 +61,10 @@ function parametrage {
 			if [[ $ligne =~ $regex ]]; then
 				local oldValue="${BASH_REMATCH[1]}"
 				#On doit délimiter avec des @ au lieu de / car sinon les / du chemins seront mal interprétés par bash
-				sed -i -e "s@$oldValue@$backupdir@g" backup.conf
+				sed -i -e "s@$oldValue@$backupdir@g" parametres.conf
 				#TODO: vérifier si le chemin fini bien par un "/" ?
 			fi
-			done 10<backup.conf
+			done 10<parametres.conf
 		  ;;
 		3)
 		  #On passe par une variable locale en attendant d'être sûr que c'est une adresse mail valide
@@ -79,10 +79,10 @@ function parametrage {
 			local regex="MAIL\s(.+)"
 			if [[ $ligne =~ $regex ]]; then
 				local oldValue="${BASH_REMATCH[1]}"
-				sed -i -e "s/$oldValue/$mail/g" backup.conf
+				sed -i -e "s/$oldValue/$mail/g" parametres.conf
 				#TODO: vérifier si le chemin fini bien par un "/" ?
 			fi
-			done 10<backup.conf
+			done 10<parametres.conf
 
 		  else
 		  	dialog --title "Adresse mail invalide" --msgbox "Merci d'entrer une adresse mail à peu près valide." 0 0
@@ -108,7 +108,7 @@ function init {
 		else
 			echo "no match"
 		fi
-	done 10<backup.conf
+	done 10<parametres.conf
 }
 
 init
