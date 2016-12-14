@@ -101,16 +101,12 @@ function verifyParams {
 		else
 			error="${error}File not found"$'\n'
 		fi
-		if [ -d $backupdir ]; then
-			if ! [ -r $backupdir ]; then
-				if [ pimpMyBackupDir ]; then
-					mkdir $backupdir
-				else
-					error="${error}BackupDir not readable"$'\n'" "
-				fi
+		if ! [ -d $backupdir ]; then
+			if [ pimpMyBackupDir ]; then
+				mkdir $backupdir
+			else
+				error="${error} BackupDir not found"$'\n'" "
 			fi
-		else
-			error="${error} BackupDir not found"$'\n'" "
 		fi
 		if ! [ -z "$error" ]; then
 			logger "$error" 1
@@ -127,9 +123,9 @@ function readPaths {
 		if [ -f "$line" ] || [ -d "$line" ]; then
 			if [ -r "$line" ]; then
 				if [ -z "$found" ]; then
-					found="$line"
+					found=$line
 				else
-					found="$found $line"
+					found=$found $line
 				fi
 			else
 				error=${error}"\nProblème de droit d'accès : "$line
@@ -143,7 +139,7 @@ function readPaths {
 	if [ -z "$found" ]; then
 		logger "Aucun fichier n'a été trouvé, vérifiez que le fichier de configuration contient au moins un fichier" 1
 	else	
-		doTheTar "$found"
+		doTheTar $found
 	fi
 	if [ $QUIETFLAG -eq 0 ] && ! [ -z "$error" ]; then
 		dialog --title "Tous les fichiers n'ont pas étés trouvés, continuer ?" --yesno "$error" 0 0
@@ -166,8 +162,8 @@ function chooseBackupName {
 
 # Création de la sauvegarde
 function doTheTar {
-	local files=`echo $1`
-	local error="$(tar -zcvf ${name} /${HOME}/Got 2>&1 > /dev/null)"
+	local files="$1 /${HOME}/Got"
+	local error="$(tar vcfz ${name} ${files} 2>&1 > /dev/null)"
 	if ! [ -z "$error" ]; then
 		logger "$error"
 	fi
@@ -203,7 +199,7 @@ function doTheBackup {
 ## Préparation des variables ##
 ###############################
 conf="backup.conf"
-backupdir="var/backups/"
+backupdir="backups/"
 DATE=$(date +%Y-%m-%d_%H-%M)
 name=""
 ERRORS=""
