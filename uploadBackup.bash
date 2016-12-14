@@ -2,10 +2,10 @@
 NAME="SwagCityRockers"
 
 #Fonction d'initialisation pour vérifier qu'on a bien notre associations de fichiers mis en ligne
-function init {
-	local FILETMP="sent"
+function init {	
+	local filetmp="sent"
 	if [ ! -f "$FILETMP" ]; then				
-		touch "$FILETMP"			
+		touch "$filetmp"			
 	fi
 }
 
@@ -23,30 +23,15 @@ function upload () {
 	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
 	IFS== read status hashsite <<< $reponse
 	#On vérifie que le site a bien reçu
-
-	if [ "${status:0:2}" = "OK" ]; then
-		addToFile $fileToUpload $hashsite
-	fi
 }
 
 # $1 : Le nom (et que le nom) du fichier qu'on veut récupérer.
 function getMyFile () {
 	#Exemple: curl "https://daenerys.xplod.fr/backup/download.php?login=SwagCityRockers&hash=d5acf475af0ba81529cdd21d50b18be1"
-	#On part à la recherche du hash correspondant dans notre fichier
-	local fileToUpload=$(displayUploadedFiles)
-	echo "ftu: "$fileToUpload
-	local hash=""
-	local regex="$fileToUpload\s([a-zA-Z0-9]+)"
-	while read -u 10 p; do
-		echo $p
-		if [[ $p =~ $regex ]]; then
-			local hash="${BASH_REMATCH[1]}"
-		fi
-	done 10<sent
-
-	#Si jamais il n'y a aucun fichier à mettre en ligne (notre fichier sent est vide)
-	if [ "$fileToUpload" != "" ]; then
-		wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$hash" -O $fileToUpload
+	#On part à la recherche du hash correspondant dans notre fichier (la fonction appelée va modifier ASSOCIATEDHASH)
+	displayUploadedFilesv2
+	if [ "$ASSOCIATEDHASH" != "" ]; then
+		wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$ASSOCIATEDHASH" -O $ASSOCIATEDNAME
 	else
 		dialog --title "Impossible d'afficher les backups" --msgbox "Soit vous avez annulé l'opération précédente, soit vous n'avez pas encore mis en ligne de backup." 0 0
 	fi
@@ -57,48 +42,34 @@ function getMyFile () {
 # Sinon je met à jour le hash. 
 # $1 : Le nom du fichier a vérifier
 # $2 : Le hash lié au fichier
-function addToFile () {
-	#Repérer la ligne qui m'intéresse et changer le hash par le nouveau...
-	local alreadyHere="0"
-	while read -u 10 p; do
-		echo $p
-		local regex="$1\s([a-zA-Z0-9]+)"
-		if [[ $p =~ $regex ]]; then
-			local alreadyHere="1"
-			local oldHash="${BASH_REMATCH[1]}"
-			sed -i -e "s/$oldHash/$2/g" sent
-		fi
-	done 10<sent
 
-	if [ $alreadyHere = "0" ]; then
-		echo $1 $2 >> sent
-		sed -i -e '$a\' sent
+function displayUploadedFilesv2 {
+	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=SwagCityRockers' | jq '.[] | .name' > filelist
+	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=SwagCityRockers' | jq '.[] | .hash' > hashlist
+	
+	#Suppression des quotes
+	$(sed -i 's/\"//g' filelist)
+	$(sed -i 's/\"//g' hashlist)
+	local LIGNE=0
+	local menuOptions=
+	ASSOCIATEDHASH=""
+
+	# Cette boucle parcours le fichier contenant tout ce que j'ai pu upload sur le serveur. Pour chaque fichier en ligne, je 
+	# le rajoute à menuOptions qui va ensuite contenir tous les fichiers qu'on peut récupérer
+	for i in `cat filelist`; do
+		LIGNE=$[LIGNE+1]
+		local menuOptions="${menuOptions} $LIGNE $i"
+	done
+	echo $menuOptions
+
+	if [ "$LIGNE" != "0" ]; then
+		local numLigne=$(dialog --stdout --menu "Sélectionner le fichier à récupérer depuis le cloud (tm)" 0 0 0 $menuOptions)
+		echo $fileToUpload
+		ASSOCIATEDHASH=$(sed "${numLigne}q;d" hashlist)
+		ASSOCIATEDNAME=$(sed "${numLigne}q;d" filelist)
 	fi
-}
 
-#On vérifie qu'il y au moins une ligne dans 'sent' sinon le menu provoquera une
-function displayUploadedFiles {
-		local MENU_OPTIONS=
-		local COUNT=0
-		local fileToUpload=""
-		local OLDIFS=$IFS
-		local IFS=$'\n'
-		for p in `cat sent`
-		do
-			local regex="(.*)\s.*"
-			    if [[ $p =~ $regex ]]; then
-			    	COUNT=$[COUNT+1]
-		       		MENU_OPTIONS="${MENU_OPTIONS} ${BASH_REMATCH[1]} ${COUNT}"
-			    fi
-		done
-		local IFS=$OLDIFS
-
-		if [ "$COUNT" != "0" ]; then
-			cmd=(dialog --menu "Quel fichier voulez vous récupérer?:" 22 76 16)
-			options=("${MENU_OPTIONS}:1")
-			local fileToUpload=$(dialog --stdout --menu "Sélectionner le fichier à récupérer depuis le cloud (tm)" 0 0 0 $MENU_OPTIONS)
-			echo $fileToUpload
-		fi
 }
 
 init
+#TODO: préparer un mode -q qui fait un upload silencieux d'un bu?

@@ -1,5 +1,6 @@
 #!/bin/bash
 source kublike.bash
+source getSynopsis.bash -q #Lance le getSynopsis.bash et génère donc auotmatiquement l'envoi de mail
 source uploadBackup.bash
 
 # Il faut donc que chaque heure (13:00, 14:00, 15:00, ... ), le script:
