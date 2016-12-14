@@ -91,7 +91,6 @@ function getSyno {
 	IFS=$'\n'
 	curl 'https://daenerys.xplod.fr/synopsis.php' | grep -e '"synopsis.php' | grep -E '<a.*>(.*)</a>' > curlRes
 	local regex="s=([0-9]+).*e=([0-9]+).*Episode\s[0-9]+:\s(.+)<\/a>"
-	REGEXSYNO="^([a-zA-Z].*)<|<p class=\"left-align light\">(.*)<"
 	importGPG
 
 	#Pour toutes les lignes du fichier curlRes1 (celles indiquant ou trouver les synopsis)
@@ -139,6 +138,7 @@ TRY=3
 WHERETO="/home/$USER/Got"
 MAILREGEX="[A-Za-z0-9]+@[a-zA-Z]+\.[a-z]+"
 INCORRECT_MAIL_FLAG=0
+REGEXSYNO="^([a-zA-Z].*)<|<p class=\"left-align light\">(.*)<"
 
 initFolder
 while getopts "q" opt; do

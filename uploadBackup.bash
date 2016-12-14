@@ -100,4 +100,33 @@ function displayUploadedFiles {
 		fi
 }
 
+function displayUploadedFilesv2 {
+	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=SwagCityRockers' | jq '.[] | .name' > filelist
+	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=SwagCityRockers' | jq '.[] | .hash' > hashlist
+	
+	#Suppression des quotes
+	$(sed -i 's/\"//g' filelist)
+	$(sed -i 's/\"//g' hashlist)
+	LIGNE=0
+	local menuOptions=
+
+	# Cette boucle parcours le fichier contenant tout ce que j'ai pu upload sur le serveur. Pour chaque fichier en ligne, je 
+	# le rajoute à menuOptions qui va ensuite contenir tous les fichiers qu'on peut récupérer
+	for i in `cat filelist`; do
+		LIGNE=$[LIGNE+1]
+		local menuOptions="${menuOptions} $LIGNE $i"
+	done
+	echo $menuOptions
+
+	if [ "$count" != "0" ]; then
+		local numLigne=$(dialog --stdout --menu "Sélectionner le fichier à récupérer depuis le cloud (tm)" 0 0 0 $menuOptions)
+		echo $fileToUpload
+	fi
+	ASSOCIATEDHASH=$(sed "${numLigne}q;d" hashlist)
+	dialog --title "Impossible d'afficher les backups" --msgbox "I WANT $ASSOCIATEDHASH." 0 0
+
+}
+
 init
+#TODO: préparer un mode -q qui fait un upload silencieux d'un bu?
+displayUploadedFilesv2
