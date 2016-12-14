@@ -52,14 +52,14 @@ function formatSyno () {
 	fi
 }
 
-#Permet de rendre la fonction silencieuse. On initialise le fichier de rejets
+#Permet de rendre la fonction silencieuse. On initialise le fichier d'erreurs
 function synoBeQuiet {
 	exec 2>/dev/null
 	QUIETFLAG=1
-	if [ -f "$Rejets" ]; then				
-		rm $Rejets		
+	if [ -f "$Errors.txt" ]; then				
+		rm Errors.txt		
 	fi
-	touch Rejets
+	touch Errors.txt
 	#On récupère l'adresse mail à qui envoyer le fichier grâce à notre backup.conf.
 	getMail
 }
@@ -116,7 +116,7 @@ function getSyno {
 				rm $WHERETO/PGP_S${saison}E${episode}
 				if [ "$QUIETFLAG" = "1" ]; then
 					#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-					echo "PGP_S${saison}E${episode}" >> Rejets
+					echo "PGP_S${saison}E${episode}" >> Errors.txt
 				fi
 			fi
 		fi
@@ -126,8 +126,8 @@ function getSyno {
 	if [ "$QUIETFLAG" = "1" ]; then
 		if [ "$INCORRECT_MAIL_FLAG" != "1" ]; then
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-			cat Rejets | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
-			rm Rejets
+			cat Errors.txt | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
+			rm Errors.txt
 		fi
 	fi
 }
@@ -146,8 +146,8 @@ while getopts "q" opt; do
     q)
 	  synoBeQuiet
 	  getSyno				
-	  rm $Rejets
-	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Rejets
+	  rm $Errors.txt
+	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Errors.txt
 	  #Rediriger les erreurs vers le null
 		;;
     \?)
