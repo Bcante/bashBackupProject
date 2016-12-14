@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Imporation des fichiers bashs contenant les fonctions qui nous intéressent
-# source kublike.bash Commenté pour pas avoir le file not found / backupdir not found.
+source kublike.bash # Commenté pour pas avoir le file not found / backupdir not found.
 source uploadBackup.bash
 source getSynopsis.bash
 
