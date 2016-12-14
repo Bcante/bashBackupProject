@@ -110,22 +110,3 @@ function getSyno {
 		rm Rejets
 	fi
 }
-
-while getopts "q" opt; do
-  case $opt in
-    q)
-      echo "Passage en mode silencieux"
-	  synoBeQuiet
-	  if [ -f "$Rejets" ]; then				
-		rm $Rejets		
-	  fi
-	  touch Rejets
-	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Rejets
-	  #Rediriger les erreurs vers le null
-		;;
-    \?)
-      echo "Option non reconnue: -$OPTARG"
-      ;;
-  esac
-done
-
