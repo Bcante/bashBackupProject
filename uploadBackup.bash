@@ -67,6 +67,8 @@ function displayUploadedFilesv2 {
 		echo $fileToUpload
 		ASSOCIATEDHASH=$(sed "${numLigne}q;d" hashlist)
 		ASSOCIATEDNAME=$(sed "${numLigne}q;d" filelist)
+		rm filelist
+		rm hashlist
 	fi
 
 }
