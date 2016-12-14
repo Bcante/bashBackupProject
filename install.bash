@@ -22,7 +22,7 @@ fi
 
 ## Installation des composants requis
 dialog --prgbox "apt-get -y update" 40 100
-dialog --prgbox "apt-get -y install tar gnupg2 curl wget sed sendmail mailutils sendmail-bin" 40 100
+dialog --prgbox "apt-get -y install tar gnupg2 curl wget sed sendmail mailutils sendmail-bin jq" 40 100
 
 ## Préparation pour GPG
 nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
