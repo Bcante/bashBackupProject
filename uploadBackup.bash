@@ -1,13 +1,6 @@
 #!/bin/bash
 NAME="SwagCityRockers"
 
-#Fonction d'initialisation pour vérifier qu'on a bien notre associations de fichiers mis en ligne
-function init {	
-	local filetmp="sent"
-	if [ ! -f "$FILETMP" ]; then				
-		touch "$filetmp"			
-	fi
-}
 
 # Pour tester, on prend que les fichiers du dir courant pour les upload.
 function graphUpMyFile {
@@ -73,5 +66,4 @@ function displayUploadedFilesv2 {
 
 }
 
-init
 #TODO: préparer un mode -q qui fait un upload silencieux d'un bu?
