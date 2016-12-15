@@ -18,7 +18,7 @@ function aiguillageMainMenu () {
 	case $choixTmp in
 		1)
 			echo "all set? $UIbackupdir $UIconf "
-		  doTheBackup "--backupdir" $UIbackupdir "--conf" $UIconf 
+		  doTheBackup "--backupdir "$UIbackupdir"--conf "$UIconf 
 		  ;;
 		2)
 		  graphUpMyFile

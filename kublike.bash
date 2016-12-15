@@ -214,7 +214,7 @@ source getSynopsis.bash
 ############################
 ## Execution du programme ##
 ############################
-doTheBackup "$@"
+
 
 # TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
 # TODO : Refactor la comparaison de backups pour eviter les problèmes
