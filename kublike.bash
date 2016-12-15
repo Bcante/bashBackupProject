@@ -12,6 +12,8 @@
 # Params : 
 	# $1 : Message d'erreur
 	# $2 : exit code
+
+	echo "bite" $HOME
 logger () {
 	if [ $QUIETFLAG -eq 0 ]; then
 		if [ $# -ge 1 ]; then
@@ -92,14 +94,14 @@ function verifyParams {
 		local error=""
 		if [ -f $conf ]; then
 			if ! [ -r $conf ]; then
-				if [ pimpMyConf ]; then
-					touch $conf
-				else
-					error="Config File not readable"$'\n'" "
-				fi
+				error="Config File not readable"$'\n'" "
 			fi
 		else
-			error="${error}File not found"$'\n'
+			if [ pimpMyConf ]; then
+					touch $conf
+				else
+					error="${error}File not found"$'\n'
+				fi
 		fi
 		if ! [ -d $backupdir ]; then
 			if [ pimpMyBackupDir ]; then
@@ -123,16 +125,16 @@ function readPaths {
 		if [ -f "$line" ] || [ -d "$line" ]; then
 			if [ -r "$line" ]; then
 				if [ -z "$found" ]; then
-					found=$line
+					found="$line"
 				else
-					found=$found $line
+					found=$found "$line"
 				fi
 			else
-				error=${error}"\nProblème de droit d'accès : "$line
+				error=${error}"\nProblème de droit d'accès : $line"
 			fi
 		else
 			if ! [ -d $line ]; then
-				error=${error}"\nFichier inexistant : "$line
+				error=${error}"\nFichier inexistant : $line"
 			fi
 		fi
 	done < $conf;
