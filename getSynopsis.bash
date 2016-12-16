@@ -5,7 +5,6 @@ function importGPG {
 	local curlok=$(echo $?)
 	if [ "$curlok" != "0" ]; then
 		if [ "$QUIETFLAG" = "1" ]; then
-			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 			if [ "INCORRECT_MAIL_FLAG" != "1" ]; then
 				echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." $mail #mailto	
 			fi
@@ -60,7 +59,7 @@ function synoBeQuiet {
 		rm Errors.txt
 	fi
 	touch Errors.txt
-	#On récupère l'adresse mail à qui envoyer le fichier grâce à notre backup.conf.
+	#On récupère l'adresse mail à qui envoyer le fichier grâce à notre parameters.conf.
 	getMail
 }
 
@@ -82,10 +81,6 @@ function getMail {
 	IFS=$oldIFS
 }
 
-#Option -q : quiet: La sortie d'erreur n'est pas affichée, si des fichiers ne peuvent être vérifié on remplit un fichier
-# qui sera envoyé par mail
-
-
 #Fonction principale qui lance le téléchargement de tous les synopsis
 function getSyno {
 	IFS=$'\n'
@@ -105,8 +100,9 @@ function getSyno {
 			$(gpg --verify $WHERETO/PGP_S${saison}E${episode})
 			local checkGPG=`echo $?`
 			#Suppression des gpg si on a une mauvaise signature
-			curl "https://daenerys.xplod.fr/synopsis.php?s=$saison&e=$episode" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
-				
+			chose=$(curl -s "https://daenerys.xplod.fr/synopsis.php?s=$saison&e=$episode" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2)
+			echo $chose
+
 			while read -u 10 d; do
 				checkFiles $saison $episode
 				formatSyno $d $saison $episode
@@ -115,7 +111,6 @@ function getSyno {
 			if [ "$checkGPG" = "1" ]; then
 				rm $WHERETO/PGP_S${saison}E${episode}
 				if [ "$QUIETFLAG" = "1" ]; then
-					#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 					echo "PGP_S${saison}E${episode}" >> Errors.txt
 				fi
 			fi
@@ -125,7 +120,6 @@ function getSyno {
 	#Si on est en mode quiet on s'envoie le résultat par mail
 	if [ "$QUIETFLAG" = "1" ]; then
 		if [ "$INCORRECT_MAIL_FLAG" != "1" ]; then
-			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 			cat Errors.txt | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
 			rm Errors.txt
 		else
@@ -149,7 +143,6 @@ while getopts "q" opt; do
 	  getSyno				
 	  rm $Errors.txt
 	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Errors.txt
-	  #Rediriger les erreurs vers le null
 		;;
     \?)
       echo "Option non reconnue: -$OPTARG"

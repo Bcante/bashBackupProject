@@ -199,7 +199,7 @@ function decryptBackup {
 		#local dirGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR}/ 0 0`
 		#if [ -n dirGET ]; then
 			if [ -f $tarGet ]; then
-				local tarf=${tarGet%%*.gz}
+				tarf=${tarGet%%".gpg"}
 				decrypt $tarGet $tarf
 			fi
 		#fi
@@ -244,21 +244,4 @@ source getSynopsis.bash
 #diffBackup
 
 	# MUST HAVE
-# TODO : Changer params d'entree pour le mode quiet
-# TODO : Refactor la comparaison de backups pour eviter les problèmes
 # TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
-# TODO : Ajouter une fonction qui utilise les droits admins pour créer répertoire de backup
-
-	# OPTIONAL
-# TODO : définir des normes de taille régulière
-
-	# CHECK
-# TODO : Refactor globaux
-# TODO : Voir avec Val pour la fonction decrypt (params)
-# TODO : Ajouter l'envoi des erreurs par mail lors de l'execution avec -q
-# TODO : Créer les fichiers de base s'ils n'existent pas
-# TODO : Ajouter un script qui vérifie que les répertoires de Conf sont bien créés
-# TODO : rediriger les erreurs vers Errors.txt et delete la variable globale
-# TODO : tester avec des chemins absolus
-# TODO : vérifier que les valeurs retournées sont bien catch
-# TODO : Ajouter une variable globale pour les erreurs
