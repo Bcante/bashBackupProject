@@ -194,23 +194,24 @@ function doTheBackup {
 }
 
 function decryptBackup {
-	local tarGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR}/ 0 0`
+	local tarGet=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR} 0 0`
 	if [ -n tarGet ]; then
-		local dirGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR}/ 0 0`
-		if [ -n dirGET ]; then
+		#local dirGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR}/ 0 0`
+		#if [ -n dirGET ]; then
 			if [ -f $tarGet ]; then
-				decrypt $tarGet ${tarGet:-4} 
+				local tarf=${tarGet%%*.gz}
+				decrypt $tarGet $tarf
 			fi
-		fi
+		#fi
 	fi
 }
 
 function diffBackup {
-	tarD=`dialog --stdout --title "Choisissez la première backup à comparer" --fselect $BACKUPDIR 0 0`
+	local tarD=`dialog --stdout --title "Choisissez la première backup à comparer" --fselect $BACKUPDIR 0 0`
 	if [ -n $tarD ]; then
 		reTarD=`dialog --stdout --title "Choisissez la seconde backup à comparer" --fselect $BACKUPDIR 0 0`
 		if [ -n $reTarD ]; then
-			diffs=$(diff <(tar -tvf $tarD | rev | cut -d\/ -f1 | rev) <(tar -tvf $reTarD | rev | cut -d\/ -f1 | rev))
+			local diffs=$(diff <(tar -tvf $tarD | rev | cut -d\/ -f1 | rev) <(tar -tvf $reTarD | rev | cut -d\/ -f1 | rev))
 			if [ -z $diffs ]; then
 				diffs="Les deux backups sont identiques"
 			fi

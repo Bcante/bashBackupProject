@@ -31,7 +31,8 @@ function encrypt {
 ## $1 nom du fichier a déchiffrer
 function decrypt {
 	getUserAndPass
-	gpg2 --passphrase $pass --decrypt "$1" --output "$2"
+	echo $1 "bite" $2
+	gpg2 --output "$2" --passphrase $pass --decrypt "$1"
 }
 
 ## TODO cat le fichier directement dans mes fonctions
