@@ -57,7 +57,7 @@ nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 
 askEmail
 regexMail="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-until [[ $mail =~ $regexMail ]]
+while ! [[ $mail =~ $regexMail ]]
 do
 	dialog --no-cancel --ok-label "Entrer une autre adresse email" \
 	--title "Configuration de gpg"
@@ -66,7 +66,7 @@ do
 done
 
 askPassPhrase
-until [[ $pass = $passconfirm ]]
+while ! [[ $pass = $passconfirm ]]
 do
 	dialog --no-cancel --ok-label "Entrer à nouveau le mot de passe" \
 	--title "Configuration de gpg"
@@ -83,7 +83,7 @@ cat > config <<EOF
       Name-Comment: $nom
       Name-Email: $mail
       Expire-Date: 0
-      Passphrase: $mdp
+      Passphrase: $pass
       %pubring config.pub
       %secring config.sec
       %commit
@@ -101,17 +101,17 @@ mkdir $workingdir
 touch $workingdir/backup.conf
 touch $workingdir/parameters.conf
 
-mv ./crontask.bash $workingdir/
-mv ./getSynopsis.bash $workingdir/
-mv ./gpg.bash $workingdir/
-mv ./kublike.bash $workingdir/
-mv ./menu.bash $workingdir/
-mv ./uploadBackup.bash $workingdir/
+cp ./crontask.bash $workingdir/
+cp ./getSynopsis.bash $workingdir/
+cp ./gpg.bash $workingdir/
+cp ./kublike.bash $workingdir/
+cp ./menu.bash $workingdir/
+cp ./uploadBackup.bash $workingdir/
 
 chown -R $user $outputdir
 chown -R $user $workingdir
 
-echo "USER $nom$('\n')
-PASSPHRASE $pass$('\n')
-MAIL $mail$('\n')
-OUTPUTDIR $outputdir" >> parameters.conf
+echo "USER $nom" >> parameters.conf
+echo "PASSPHRASE $pass" >> parameters.conf
+echo "MAIL $mail" >> parameters.conf
+echo "OUTPUTDIR $outputdir" >> parameters.conf
