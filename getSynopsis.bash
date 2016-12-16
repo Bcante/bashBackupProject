@@ -5,7 +5,6 @@ function importGPG {
 	local curlok=$(echo $?)
 	if [ "$curlok" != "0" ]; then
 		if [ "$QUIETFLAG" = "1" ]; then
-			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 			if [ "INCORRECT_MAIL_FLAG" != "1" ]; then
 				echo "Tentative faite le: $DATE" | mail -s "Erreurs de connexion: Le serveur n'est pas disponnible." $mail #mailto	
 			fi
@@ -81,7 +80,6 @@ function getMail {
 	IFS=$oldIFS
 }
 
-
 #Fonction principale qui lance le téléchargement de tous les synopsis
 function getSyno {
 	IFS=$'\n'
@@ -101,8 +99,9 @@ function getSyno {
 			$(gpg --verify $WHERETO/PGP_S${saison}E${episode})
 			local checkGPG=`echo $?`
 			#Suppression des gpg si on a une mauvaise signature
-			curl "https://daenerys.xplod.fr/synopsis.php?s=$saison&e=$episode" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
-				
+			chose=$(curl -s "https://daenerys.xplod.fr/synopsis.php?s=$saison&e=$episode" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2)
+			echo $chose
+
 			while read -u 10 d; do
 				checkFiles $saison $episode
 				formatSyno $d $saison $episode

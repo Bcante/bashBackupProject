@@ -146,7 +146,7 @@ function checkAccess {
 	done
 }
 actualiseParam
-checkAccess
+#checkAccess
 
 while [ $QUIT -eq 0 ]; do
 	#On s'assure que les paramètres du fichier seront toujours mis à jour en appelant actualiseParam
