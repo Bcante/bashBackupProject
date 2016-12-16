@@ -19,9 +19,9 @@ function aiguillageMainMenu () {
 		1)
 		 #On appelle cette fonction pour que les synopsis pris par la fonction soit le plus à jour possible
 		  #getSyno
-		  echo "$UIbackupdir"
-		  echo "$UIconf"
-		  doTheBackup "--backupdir" "$UIbackupdir" "--conf" "$UIconf"
+		  echo "$BACKUPDIR"
+		  echo "$CONF"
+		  doTheBackup "--backupdir" "$BACKUPDIR" "--conf" "$CONF"
 		 	#echo "Je viens de faire $name"
 		  ;;
 		2)
@@ -120,17 +120,17 @@ function actualiseParam {
 
 		local regexb="BACKUPDIR\s(.*)"
 		if [[ "$p" =~ $regexb ]]; then
-			UIbackupdir="${BASH_REMATCH[1]}"
+			BACKUPDIR="${BASH_REMATCH[1]}"
 		fi
 
 		local regexc="CONF\s(.*)"
 		if [[ "$p" =~ $regexc ]]; then
-			UIconf="${BASH_REMATCH[1]}"
+			CONF="${BASH_REMATCH[1]}"
 		fi
 		
 		local regexd="PASSPHRASE\s(.*)"
 		if [[ "$p" =~ $regexd ]]; then
-			basePass="${BASH_REMATCH[1]}"
+			BASEPASS="${BASH_REMATCH[1]}"
 		fi
 	done 10<parameters.conf
 }
@@ -140,10 +140,10 @@ function checkAccess {
 	while [ $ACCESS_DENIED = "1" ]; do
 		local pass=$(dialog --title "Vérification identité" --stdout --inputbox "Veuillez entrez le mot de passe\
 	que vous avez renseigné à l'installation.\n(laissez la chaîne vide ou appuyez sur annuler pour abandonner)" 0 0 "")
-		echo "$pass vs $basePass"
+		echo "$pass vs $BASEPASS"
 
 		#On regarde si ça correspond à ce qui a été renseigné à l'installation
-		if [[ "$pass" = "$basePass" ]]; then
+		if [[ "$pass" = "$BASEPASS" ]]; then
 			dialog --title "Authentification" --msgbox "Authentification réussie" 0 0
 			ACCESS_DENIED=0
 		elif [[ "$pass" = "" ]]; then
