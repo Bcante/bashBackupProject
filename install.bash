@@ -1,10 +1,15 @@
 #!/bin/bash
+user=$(whoami)
+echo "Ce programme va installer et configurer SwagCityRockers, notre solution de backup.\n\
+	Afin de procéder à l'installation, vous devez avoir les permissions du super-utilisateur."
+
+sudo -i
 
 ## Vérifie qu'on est root
-user=$(whoami)
-if [ $user != "root" ]; then
+root=$(whoami)
+if [ $root != "root" ]; then
 	echo "Ce script doit effectuer des modifications sur votre système, il a donc besoin de tous les droits.\
-			\nVeuillez exécuter ce script en tant de super utilisateur."
+			\nVeuillez relancer le script et entrer votre mot de passe a nouveau."
 	exit 1
 fi
 
@@ -32,7 +37,7 @@ nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 mail=$(dialog --stdout --no-cancel  --ok-label "Suivant" \
 	--title "Configuration de gpg" \
 	--inputbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nEntrez votre adresse email :" 20 70)
-## faire un while pour vérifier que le mail est ok
+# TODO faire un while pour vérifier que le mail est ok
 
 mdp=$(dialog --stdout --no-cancel  --ok-label "Suivant" \
 	--title "Configuration de gpg" \
@@ -41,9 +46,9 @@ mdp=$(dialog --stdout --no-cancel  --ok-label "Suivant" \
 mdpverif=$(dialog --stdout --no-cancel  --ok-label "Terminer" \
 	--title "Configuration de gpg" \
 	--passwordbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nValidez votre mot de passe :" 20 70)
-## Faire un while pour vérifier que le mdp == la mdpverif
+# TODO Faire un while pour vérifier que le mdp == la mdpverif
 
-cat >config <<EOF
+cat > config <<EOF
       Key-Type: DSA
       Key-Length: 1024
       Subkey-Type: ELG-E
@@ -65,3 +70,7 @@ rm config
 ## Création des fichiers et dossiers de config
 mkdir ./backups
 touch backup.conf
+
+## Changement du propriétaire et des accès
+chown $user ./backups
+chown $user backup.conf
