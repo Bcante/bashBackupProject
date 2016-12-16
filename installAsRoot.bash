@@ -20,9 +20,9 @@ function askPassPhrase {
 ## Début de l'installation ##
 #############################
 nomduprog="SwagCityRockers"
-user=${cat user.txt}
+user=$(cat user.txt)
 rm user.txt
-homedir=${cat home.txt}
+homedir=$(cat home.txt)
 rm home.txt
 
 ## Vérifie qu'on est root
