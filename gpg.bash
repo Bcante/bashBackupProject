@@ -13,7 +13,7 @@ function encrypt {
 }
 
 # Déchiffrement de la sauvegarde
-## $1 nom du fichier a décrypter
+## $1 nom du fichier a déchiffrer
 ## suivi de cat $fichierConf
 ## - $3 est la passphrase du tar
 function decrypt {
