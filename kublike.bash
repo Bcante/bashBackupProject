@@ -224,14 +224,10 @@ function diffBackup {
 
 #Menu avec une liste serait plus simple
 function extractFile {
-	local path="${HOME}/temps_backup_extract_dir/"
-	tar -zxvf $(decryptBackup) -C $path
-	local file=`dialog --stdout --title "Choisissez le fichier à extraire" --fselect $path 0 0`
-	if [ -f $file ]; then
-		mv $file ${HOME}/
-	else
-		logger "Fichier non valide"
-	fi
+	local list=`tar $(decryptBackup) --list`
+	for item in $list; do
+		# Ajouter chaque element au menu
+	done
 }
 
 ###############################
