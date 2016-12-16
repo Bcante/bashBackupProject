@@ -200,7 +200,13 @@ function decryptBackup {
 	if [ -f $tarGet ]; then
 		decrypt $tarGet
 	fi
-	tarGet=${tarGet:-4}  
+	tarGet=${tarGet:-4}
+}
+
+function diffBackup {
+	tarD=`dialog --stdout --title "Choisissez la première backup à comparer" --fselect ${HOME}/ 0 0`
+	reTarD=`dialog --stdout --title "Choisissez la seconde backup à comparer" --fselect ${HOME}/ 0 0`
+	dialog --title "Différence(s) entre les backup" --msgbox $(diff $tarD $reTarD) 0 0
 }
 
 ###############################
@@ -217,23 +223,18 @@ ERRORS=""
 source gpg.bash
 source getSynopsis.bash
 
-############################
-## Execution du programme ##
-############################
-
-
 	# MUST HAVE
-# TODO : Refactor globaux
-# TODO : Voir avec Val pour la fonction decrypt (params)
-# TODO : ajotuer une fonction qui utilise les droits admins pour créer répertoire de backup
 # TODO : Changer params d'entree pour le mode quiet
-# TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
 # TODO : Refactor la comparaison de backups pour eviter les problèmes
+# TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
+# TODO : Ajouter une fonction qui utilise les droits admins pour créer répertoire de backup
 
 	# OPTIONAL
 # TODO : définir des normes de taille régulière
 
 	# CHECK
+# TODO : Refactor globaux
+# TODO : Voir avec Val pour la fonction decrypt (params)
 # TODO : Ajouter l'envoi des erreurs par mail lors de l'execution avec -q
 # TODO : Créer les fichiers de base s'ils n'existent pas
 # TODO : Ajouter un script qui vérifie que les répertoires de Conf sont bien créés
