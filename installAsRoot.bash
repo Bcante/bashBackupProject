@@ -101,12 +101,12 @@ mkdir $workingdir
 touch $workingdir/backup.conf
 touch $workingdir/parameters.conf
 
-mv ./crontask.bash $workingdir/
-mv ./getSynopsis.bash $workingdir/
-mv ./gpg.bash $workingdir/
-mv ./kublike.bash $workingdir/
-mv ./menu.bash $workingdir/
-mv ./uploadBackup.bash $workingdir/
+cp ./crontask.bash $workingdir/
+cp ./getSynopsis.bash $workingdir/
+cp ./gpg.bash $workingdir/
+cp ./kublike.bash $workingdir/
+cp ./menu.bash $workingdir/
+cp ./uploadBackup.bash $workingdir/
 
 chown -R $user $outputdir
 chown -R $user $workingdir
