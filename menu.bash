@@ -17,8 +17,9 @@ function aiguillageMainMenu () {
 	local message=""
 	case $choixTmp in
 		1)
-#echo "all set? $UIbackupdir $UIconf "
-		  doTheBackup "--backupdir "$UIbackupdir" --conf "$UIconf 
+echo "all set? $UIbackupdir $UIconf "
+
+		  doTheBackup "--backupdir" $UIbackupdir "--conf" $UIconf 
 		 	#echo "Je viens de faire $name"
 		  ;;
 		2)
@@ -108,21 +109,16 @@ function init {
 		local regexb="BACKUPDIR\s(.*)"
 		if [[ $p =~ $regexb ]]; then
 			UIbackupdir="${BASH_REMATCH[1]}"
-		else
-			echo "no match"
 		fi
 
 		local regexc="CONF\s(.*)"
 		if [[ $p =~ $regexc ]]; then
 			UIconf="${BASH_REMATCH[1]}"
-		else
-			echo "no match"
 		fi
 	done 10<parametres.conf
 }
 
 init
-
 
 while [ $QUIT -eq 0 ]; do
 	CHOIX=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \

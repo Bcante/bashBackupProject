@@ -1,7 +1,6 @@
 #!/bin/bash
 GROUPNAME="SwagCityRockers"
 
-
 # Pour tester, on prend que les fichiers du dir courant pour les upload.
 function graphUpMyFile {
 	local fileToUpload=$(dialog --title "Sélectionner le fichier à uploader" --stdout --fselect "" 0 0)
@@ -40,8 +39,6 @@ function displayUploadedFilesv2 {
 	echo "$GROUPNAME means what"
 	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .name' > filelist
 	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .hash' > hashlist
-	cat filelist
-	cat hashlist
 	#Suppression des quotes
 	$(sed -i 's/\"//g' filelist)
 	$(sed -i 's/\"//g' hashlist)

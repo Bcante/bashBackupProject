@@ -68,6 +68,5 @@ touch backup.conf
 echo "MAIL $mail">>parametres.conf
 echo "OUTPUTDIR /var/mesbackups">>parametres.conf
 echo "*/1 * * * * root touch /home/$USER/nourdinlemalin">> /etc/crontab
-echo "*/1 * * * * root touch /home/user/nourdinledebile">> /etc/crontab
 
 
