@@ -158,7 +158,7 @@ function chooseBackupName {
 
 # Création de la sauvegarde
 function doTheTar {
-	local files="$1" "/${HOME}/Got"
+	local files="$1" "${HOME}/Got"
 	local error="$(tar vcfz ${NAME} ${files} 2>&1 > /dev/null)"
 	if [ -n "$error" ]; then
 		logger "$error"
@@ -194,11 +194,15 @@ function doTheBackup {
 }
 
 function decryptBackup {
-	tarGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${HOME}/ 0 0`
-	if [ -f $tarGet ]; then
-		decrypt $tarGet
+	local tarGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR}/ 0 0`
+	if [ -n tarGet ]; then
+		local dirGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR}/ 0 0`
+		if [ -n dirGET ]; then
+			if [ -f $tarGet ]; then
+				decrypt $tarGet ${tarGet:-4} 
+			fi
+		fi
 	fi
-	tarGet=${tarGet:-4}
 }
 
 function diffBackup {

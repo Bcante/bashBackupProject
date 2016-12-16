@@ -138,9 +138,8 @@ function actualiseParam {
 function checkAccess {
 	ACCESS_DENIED="1"
 	while [ $ACCESS_DENIED = "1" ]; do
-		local pass=$(dialog --title "Vérification identité" --stdout --inputbox "Veuillez entrez le mot de passe\
+		local pass=$(dialog --title "Vérification identité" --stdout --passwordbox "Veuillez entrez le mot de passe\
 	que vous avez renseigné à l'installation.\n(laissez la chaîne vide ou appuyez sur annuler pour abandonner)" 0 0 "")
-		echo "$pass vs $BASEPASS"
 
 		#On regarde si ça correspond à ce qui a été renseigné à l'installation
 		if [[ "$pass" = "$BASEPASS" ]]; then
