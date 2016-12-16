@@ -56,7 +56,7 @@ nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 	Entrez votre nom pour signer les sauvegardes à votre nom :" 20 70)
 
 askEmail
-regexMail="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+local regexMail="[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
 while ! [[ $mail =~ $regexMail ]]
 do
 	dialog --no-cancel --ok-label "Entrer une autre adresse email" \

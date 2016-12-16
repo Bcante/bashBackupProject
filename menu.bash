@@ -70,14 +70,16 @@ function parametrage {
 		2)
 		  BACKUPDIR=$(dialog --title --stdout "Nouveau dossier de destination" --dselect /home/$USER/ 0 0)
 			while read -u 10 p; do
-			local ligne=$p
-			local regex="BACKUPDIR\s(.+)"
-			if [[ $ligne =~ $regex ]]; then
-				local oldValue="${BASH_REMATCH[1]}"
-				#On doit délimiter avec des @ au lieu de / car sinon les / du chemins seront mal interprétés par bash
-				sed -i -e "s@$oldValue@$BACKUPDIR@g" paramaters.conf
-				#TODO: vérifier si le chemin fini bien par un "/" ?
-			fi
+				local ligne=$p
+				local regex="BACKUPDIR\s(.+)"
+				if [[ $ligne =~ $regex ]]; then
+					local oldValue="${BASH_REMATCH[1]}"
+					#On doit délimiter avec des @ au lieu de / car sinon les / du chemins seront mal interprétés par bash
+					echo $BACKUPDIR
+					sed -i -e "s@$oldValue@$BACKUPDIR@g" parameters.conf
+					echo $BACKUPDIR
+					#TODO: vérifier si le chemin fini bien par un "/" ?
+				fi
 			done 10<parameters.conf
 		  ;;
 		3)
@@ -89,13 +91,13 @@ function parametrage {
 			mail="$mailTmp"
 
 			while read -u 10 p; do
-			local ligne=$p
-			local regex="MAIL\s(.+)"
-			if [[ $ligne =~ $regex ]]; then
-				local oldValue="${BASH_REMATCH[1]}"
-				sed -i -e "s/$oldValue/$mail/g" parameters.conf
-				#TODO: vérifier si le chemin fini bien par un "/" ?
-			fi
+				local ligne=$p
+				local regex="MAIL\s(.+)"
+				if [[ $ligne =~ $regex ]]; then
+					local oldValue="${BASH_REMATCH[1]}"
+					sed -i -e "s/$oldValue/$mail/g" parameters.conf
+					#TODO: vérifier si le chemin fini bien par un "/" ?
+				fi
 			done 10<parameters.conf
 
 		  else
@@ -136,9 +138,8 @@ function actualiseParam {
 function checkAccess {
 	ACCESS_DENIED="1"
 	while [ $ACCESS_DENIED = "1" ]; do
-		local pass=$(dialog --title "Vérification identité" --stdout --inputbox "Veuillez entrez le mot de passe\
+		local pass=$(dialog --title "Vérification identité" --stdout --passwordbox "Veuillez entrez le mot de passe\
 	que vous avez renseigné à l'installation.\n(laissez la chaîne vide ou appuyez sur annuler pour abandonner)" 0 0 "")
-		echo "$pass vs $BASEPASS"
 
 		#On regarde si ça correspond à ce qui a été renseigné à l'installation
 		if [[ "$pass" = "$BASEPASS" ]]; then
