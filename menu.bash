@@ -1,9 +1,10 @@
 #!/bin/bash
 
 #Imporation des fichiers bashs contenant les fonctions qui nous intéressent
-source kublike.bash # Commenté pour pas avoir le file not found / backupdir not found.
+#source kublike.bash # Commenté pour pas avoir le file not found / backupdir not found.
 source uploadBackup.bash
 source getSynopsis.bash
+source kublike.bash
 
 QUIT=0
 CHOIX=0
@@ -16,7 +17,8 @@ function aiguillageMainMenu () {
 	local message=""
 	case $choixTmp in
 		1)
-		  doTheBackup
+			echo "all set? $UIbackupdir $UIconf "
+		  doTheBackup "--backupdir "$UIbackupdir"--conf "$UIconf 
 		  ;;
 		2)
 		  graphUpMyFile
@@ -99,12 +101,19 @@ function init {
 		#Récupération de l'adresse mail
 		local regex="MAIL\s(.*)" 
 		if [[ $p =~ $regex ]]; then
-			mail="${BASH_REMATCH[1]}"
+			UImail="${BASH_REMATCH[1]}"
 		fi
 
 		local regexb="BACKUPDIR\s(.*)"
 		if [[ $p =~ $regexb ]]; then
-			backupdir="${BASH_REMATCH[1]}"
+			UIbackupdir="${BASH_REMATCH[1]}"
+		else
+			echo "no match"
+		fi
+
+		local regexc="CONF\s(.*)"
+		if [[ $p =~ $regexc ]]; then
+			UIconf="${BASH_REMATCH[1]}"
 		else
 			echo "no match"
 		fi
@@ -115,7 +124,6 @@ init
 
 
 while [ $QUIT -eq 0 ]; do
-	echo "mail: $mail"
 echo "sortie: $backupdir"
 	CHOIX=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Quitter" \

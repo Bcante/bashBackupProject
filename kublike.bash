@@ -210,7 +210,7 @@ source getSynopsis.bash
 ############################
 ## Execution du programme ##
 ############################
-doTheBackup "$@"
+
 
 # TODO : Refactor globaux
 # TODO : Changer params d'entree pour le mode quiet

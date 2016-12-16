@@ -37,8 +37,8 @@ function getMyFile () {
 # $2 : Le hash lié au fichier
 
 function displayUploadedFilesv2 {
-	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=SwagCityRockers' | jq '.[] | .name' > filelist
-	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=SwagCityRockers' | jq '.[] | .hash' > hashlist
+	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=$NAME' | jq '.[] | .name' > filelist
+	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=$NAME' | jq '.[] | .hash' > hashlist
 	
 	#Suppression des quotes
 	$(sed -i 's/\"//g' filelist)
