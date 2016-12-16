@@ -57,9 +57,7 @@ function verifyParams {
 		for (( i=0; i<=$#; i+=1 )); do
 			local index=$((i+1))
 			if [ ${!i} = "--conf" ];then
-				if [ $index -gt $# ]; then
-					logger "Usage --conf <config file>"
-				else
+				if [ $index -lt $# ]; then
 					if [ -f ${!index} ]; then
 						if [ -r ${!index} ]; then
 							conf=${!index}
@@ -72,9 +70,7 @@ function verifyParams {
 					fi
 				fi
 			elif [ ${!i} = "--backupdir" ]; then
-				if [ $index -gt $# ]; then
-					logger "Usage --backupdir <directory>"
-				else
+				if [ $index -lt $# ]; then
 					if [ -d ${!index} ]; then
 						if [ -r ${!index} ]; then
 							backupdir=${!index}
@@ -216,6 +212,8 @@ source getSynopsis.bash
 ############################
 
 
+# TODO : Refactor globaux
+# TODO : Changer params d'entree pour le mode quiet
 # TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
 # TODO : Refactor la comparaison de backups pour eviter les problèmes
 
