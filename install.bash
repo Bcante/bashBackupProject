@@ -5,5 +5,4 @@ echo "Afin de procéder à l'installation, vous devez passer en super-utilisateu
 
 whoami >> user.txt
 echo $HOME >> home.txt
-echo $HOME
 su -c './installAsRoot.bash'
