@@ -192,6 +192,7 @@ function doTheBackup {
 	chooseBackupName
 	readPaths
 	clearOldBackups
+	encrypt $NAME
 }
 
 ###############################
@@ -205,6 +206,7 @@ ERRORS=""
 ###############################
 ## Source des autres scritps ##
 ###############################
+source gpg.bash
 source getSynopsis.bash
 
 ############################
@@ -213,6 +215,7 @@ source getSynopsis.bash
 
 
 # TODO : Refactor globaux
+# TODO : ajotuer une fonction qui utilise les droits admins pour créer répertoire de backup
 # TODO : Changer params d'entree pour le mode quiet
 # TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
 # TODO : Refactor la comparaison de backups pour eviter les problèmes
