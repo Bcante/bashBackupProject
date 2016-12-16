@@ -97,7 +97,7 @@ function parametrage {
 }
 
 #Se base sur le fichier backup.conf pour remplir les valeurs globales qui nous seront utiles pour la suite du programme
-function init {
+function actualiseParam {
 	while read -u 10 p; do #TODO faire sauter la ligne EOF
 		#Récupération de l'adresse mail
 		local regex="MAIL\s(.*)" 
@@ -117,9 +117,10 @@ function init {
 	done 10<parametres.conf
 }
 
-init
 
 while [ $QUIT -eq 0 ]; do
+	#On s'assure que les paramètres du fichier seront toujours mis à jour
+	actualiseParam
 	CHOIX=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Quitter" \
 		"1" "Faire un Backup" \
