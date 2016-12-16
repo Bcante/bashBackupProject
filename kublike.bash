@@ -56,7 +56,7 @@ function verifyParams {
 	if [ $# -gt 0 ]; then
 		for (( i=0; i<=$#; i+=1 )); do
 			local index=$((i+1))
-			if [ ${!i} = "--conf" ];then
+			if [ "${!i}" = "--conf" ];then
 				if [ $index -lt $# ]; then
 					if [ -f ${!index} ]; then
 						if [ -r ${!index} ]; then
@@ -69,7 +69,7 @@ function verifyParams {
 						logger "File not found" 1
 					fi
 				fi
-			elif [ ${!i} = "--backupdir" ]; then
+			elif [ "${!i}" = "--backupdir" ]; then
 				if [ $index -lt $# ]; then
 					if [ -d ${!index} ]; then
 						if [ -r ${!index} ]; then
@@ -156,8 +156,6 @@ function chooseBackupName {
 	if [ -f $name ]; then
 		local count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
 		name=${backupdir}${DATE}_${count}.tar.gz
-	else
-
 	fi
 }
 
@@ -204,7 +202,6 @@ backupdir="backups/"
 DATE=$(date +%Y-%m-%d_%H-%M)
 name=""
 ERRORS=""
-
 ###############################
 ## Source des autres scritps ##
 ###############################

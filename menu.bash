@@ -17,9 +17,8 @@ function aiguillageMainMenu () {
 	local message=""
 	case $choixTmp in
 		1)
-echo "all set? $UIbackupdir $UIconf "
-
-		  doTheBackup "--backupdir" $UIbackupdir "--conf" $UIconf 
+		echo "all set? $UIbackupdir $UIconf "
+		  doTheBackup "--backupdir" "$UIbackupdir" "--conf" "$UIconf" 
 		 	#echo "Je viens de faire $name"
 		  ;;
 		2)
