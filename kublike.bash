@@ -196,20 +196,22 @@ function doTheBackup {
 function decryptBackup {
 	local tarGet=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR} 0 0`
 	if [ -n tarGet ]; then
-		#local dirGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${BACKUPDIR}/ 0 0`
-		#if [ -n dirGET ]; then
-			if [ -f $tarGet ]; then
-				tarf=${tarGet%%".gpg"}
-				decrypt $tarGet $tarf
-			fi
-		#fi
+		if [ -f $tarGet ]; then
+			local tarf=${tarGet%%".gpg"}
+			decrypt $tarGet $tarf
+			echo $tarf
+		else
+			logger "Fichier non valide"
+		fi
+	else
+		logger "Fichier non valide"
 	fi
 }
 
 function diffBackup {
-	local tarD=`dialog --stdout --title "Choisissez la première backup à comparer" --fselect $BACKUPDIR 0 0`
+	local tarD=`dialog --stdout --title "Choisissez le premier backup à comparer" --fselect $BACKUPDIR 0 0`
 	if [ -n $tarD ]; then
-		reTarD=`dialog --stdout --title "Choisissez la seconde backup à comparer" --fselect $BACKUPDIR 0 0`
+		reTarD=`dialog --stdout --title "Choisissez le second backup à comparer" --fselect $BACKUPDIR 0 0`
 		if [ -n $reTarD ]; then
 			local diffs=$(diff <(tar -tvf $tarD | rev | cut -d\/ -f1 | rev) <(tar -tvf $reTarD | rev | cut -d\/ -f1 | rev))
 			if [ -z $diffs ]; then
@@ -217,6 +219,18 @@ function diffBackup {
 			fi
 			dialog --title "Différence(s) entre les backup" --msgbox "$diffs" 0 0
 		fi
+	fi
+}
+
+#Menu avec une liste serait plus simple
+function extractFile {
+	local path="${HOME}/temps_backup_extract_dir/"
+	tar -zxvf $(decryptBackup) -C $path
+	local file=`dialog --stdout --title "Choisissez le fichier à extraire" --fselect $path 0 0`
+	if [ -f $file ]; then
+		mv $file ${HOME}/
+	else
+		logger "Fichier non valide"
 	fi
 }
 
@@ -228,20 +242,11 @@ BACKUPDIR="/var/mesbackups/"
 DATE=$(date +%Y-%m-%d_%H-%M)
 NAME=""
 ERRORS=""
+
 ###############################
 ## Source des autres scritps ##
 ###############################
 source gpg.bash
 source getSynopsis.bash
 
-###############################
-## Donneés de test pour diff ##
-###############################
-#echo "/home/bleacks/MEGAsync/MIAGE/L3/Script/bashBackupProject/test/file1.txt" > $CONF
-#doTheBackup "--backupdir" "$BACKUPDIR" "--conf" "$CONF"
-#echo "/home/bleacks/MEGAsync/MIAGE/L3/Script/bashBackupProject/test/file2.txt" >> $CONF
-#doTheBackup "--backupdir" "$BACKUPDIR" "--conf" "$CONF"
-#diffBackup
-
-	# MUST HAVE
-# TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
+#TODO : retablish auth on launch

@@ -29,12 +29,8 @@ function encrypt {
 
 # Déchiffrement de la sauvegarde
 ## $1 nom du fichier a déchiffrer
+## $2 nom du fichier de sortie
 function decrypt {
 	getUserAndPass
-	echo $pass "bite" $pass
-	#echo $pass | gpg --batch --passphrase-fd 0 --output "$2" --decrypt "$1"
 	gpg2 --batch --yes --passphrase $pass --output "$2" --decrypt "$1"
 }
-
-## TODO cat le fichier directement dans mes fonctions
-## sed -n 2p "$1"

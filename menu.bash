@@ -42,6 +42,9 @@ function aiguillageMainMenu () {
 		7)
 		  diffBackup
 		  ;;
+		8)
+		  extractFile
+		  ;;
 		0)
 		  QUIT=1
 		  ;;  
@@ -154,7 +157,7 @@ function checkAccess {
 	done
 }
 actualiseParam
-#checkAccess
+checkAccess
 
 while [ $QUIT -eq 0 ]; do
 	#On s'assure que les paramètres du fichier seront toujours mis à jour
@@ -167,7 +170,8 @@ while [ $QUIT -eq 0 ]; do
 		"4" "Télécharger les synopsis" \
 		"5" "Paramétres" \
 		"6" "Déchiffrage d'un backup" \
-		"7" "Différence entre deux backups")
+		"7" "Différence entre deux backups"\
+		"8" "Extraction d'un fichier")
 	aiguillageMainMenu $CHOIX
 done
 echo "Au revoir"
