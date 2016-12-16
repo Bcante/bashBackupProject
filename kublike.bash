@@ -150,11 +150,14 @@ function readPaths {
 
 # Création du nom de la sauvegarde
 function chooseBackupName {
+	DATE=$(date +%Y-%m-%d_%H-%M)
 	name=${backupdir}${DATE}.tar.gz
 	# Différence entre deux backups effectuées au même moment
 	if [ -f $name ]; then
 		local count=$(find ${backupdir}${date}* -maxdepth 1 -type f | wc -l)
 		name=${backupdir}${DATE}_${count}.tar.gz
+	else
+
 	fi
 }
 
