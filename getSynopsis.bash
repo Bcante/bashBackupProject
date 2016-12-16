@@ -132,7 +132,6 @@ function getSyno {
 	fi
 }
 
-DATE=`date +%Y-%m-%d:%H:%M:%S`
 QUIETFLAG=0
 TRY=3
 WHERETO="/home/$USER/Got"
