@@ -59,7 +59,6 @@ function synoBeQuiet {
 		rm Errors.txt
 	fi
 	touch Errors.txt
-	#On récupère l'adresse mail à qui envoyer le fichier grâce à notre parameters.conf.
 	getMail
 }
 

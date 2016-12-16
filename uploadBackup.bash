@@ -12,12 +12,8 @@ function graphUpMyFile {
 function upload () {
 	local fileToUpload=$1
 	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$GROUPNAME" -F "file=@$fileToUpload")
-	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
-	IFS== read status hashsite <<< $reponse
-	#On vérifie que le site a bien reçu
 }
 
-# $1 : Le nom (et que le nom) du fichier qu'on veut récupérer.
 function getMyFile () {
 	#Exemple: curl "https://daenerys.xplod.fr/backup/download.php?login=SwagCityRockers&hash=d5acf475af0ba81529cdd21d50b18be1"
 	#On part à la recherche du hash correspondant dans notre fichier (la fonction appelée va modifier ASSOCIATEDHASH)
@@ -30,13 +26,7 @@ function getMyFile () {
 }
 
 # Vérifie si le fichier fait partie de ma liste de fichiers mis en ligne. 
-# Si ce n'est pas le cas, alors j'écris son nom et son hash
-# Sinon je met à jour le hash. 
-# $1 : Le nom du fichier a vérifier
-# $2 : Le hash lié au fichier
-
 function displayUploadedFilesv2 {
-	echo "$GROUPNAME means what"
 	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .name' > filelist
 	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .hash' > hashlist
 	#Suppression des quotes
@@ -59,10 +49,8 @@ function displayUploadedFilesv2 {
 		echo $fileToUpload
 		ASSOCIATEDHASH=$(sed "${numLigne}q;d" hashlist)
 		ASSOCIATEDGROUPNAME=$(sed "${numLigne}q;d" filelist)
-		#rm filelist
-		#rm hashlist
+		rm filelist
+		rm hashlist
 	fi
 
 }
-
-#TODO: préparer un mode -q qui fait un upload silencieux d'un bu?
