@@ -72,7 +72,6 @@ do
 	--msgbox "Les deux mots de pass entrés ne sont pas identiques, veuillez réessayer."
 	askPassPhrase
 done
-pass=$(echo -n $pass | sha256sum)
 
 cat > config <<EOF
       Key-Type: DSA
