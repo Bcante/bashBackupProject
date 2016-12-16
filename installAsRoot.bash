@@ -111,7 +111,7 @@ cp ./uploadBackup.bash $workingdir/
 chown -R $user $outputdir
 chown -R $user $workingdir
 
-echo "USER $nom$('\n')
-PASSPHRASE $pass$('\n')
-MAIL $mail$('\n')
-OUTPUTDIR $outputdir" >> parameters.conf
+echo "USER $nom" >> parameters.conf
+echo "PASSPHRASE $pass" >> parameters.conf
+echo "MAIL $mail" >> parameters.conf
+echo "OUTPUTDIR $outputdir" >> parameters.conf
