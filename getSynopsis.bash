@@ -60,7 +60,6 @@ function synoBeQuiet {
 		rm Errors.txt
 	fi
 	touch Errors.txt
-	#On récupère l'adresse mail à qui envoyer le fichier grâce à notre backup.conf.
 	getMail
 }
 
@@ -81,9 +80,6 @@ function getMail {
 	done
 	IFS=$oldIFS
 }
-
-#Option -q : quiet: La sortie d'erreur n'est pas affichée, si des fichiers ne peuvent être vérifié on remplit un fichier
-# qui sera envoyé par mail
 
 
 #Fonction principale qui lance le téléchargement de tous les synopsis
@@ -115,7 +111,6 @@ function getSyno {
 			if [ "$checkGPG" = "1" ]; then
 				rm $WHERETO/PGP_S${saison}E${episode}
 				if [ "$QUIETFLAG" = "1" ]; then
-					#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 					echo "PGP_S${saison}E${episode}" >> Errors.txt
 				fi
 			fi
@@ -125,8 +120,7 @@ function getSyno {
 	#Si on est en mode quiet on s'envoie le résultat par mail
 	if [ "$QUIETFLAG" = "1" ]; then
 		if [ "$INCORRECT_MAIL_FLAG" != "1" ]; then
-			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-		#	cat Errors.txt | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
+			cat Errors.txt | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
 			rm Errors.txt
 		else
 			echo "Adresse mail invalide: Le fichier de log ne peut être envoyé"
@@ -149,7 +143,6 @@ while getopts "q" opt; do
 	  getSyno				
 	  rm $Errors.txt
 	  echo "Les fichiers suivants ont été rejeté pour cause de signature non conforme: " >> Errors.txt
-	  #Rediriger les erreurs vers le null
 		;;
     \?)
       echo "Option non reconnue: -$OPTARG"

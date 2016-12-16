@@ -18,9 +18,7 @@ function aiguillageMainMenu () {
 	case $choixTmp in
 		1)
 		 #On appelle cette fonction pour que les synopsis pris par la fonction soit le plus à jour possible
-		  #getSyno
-		  echo "$BACKUPDIR"
-		  echo "$CONF"
+		  getSyno
 		  doTheBackup "--backupdir" "$BACKUPDIR" "--conf" "$CONF"
 		 	#echo "Je viens de faire $name"
 		  ;;
@@ -53,10 +51,6 @@ function aiguillageMainMenu () {
 	esac
 }
 
-
-
-#option 1) Permet de changer les fichier/dossiers a svg
-#option 2) Permet de spécifier le dossier de sortie
 function parametrage {
 	local choixParam=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Retour" \
@@ -78,13 +72,10 @@ function parametrage {
 					echo $BACKUPDIR
 					sed -i -e "s@$oldValue@$BACKUPDIR@g" parameters.conf
 					echo $BACKUPDIR
-					#TODO: vérifier si le chemin fini bien par un "/" ?
 				fi
 			done 10<parameters.conf
 		  ;;
 		3)
-		  #On passe par une variable locale en attendant d'être sûr que c'est une adresse mail valide
-		  #Et on oublie pas d'overwrite le fichier de configuration...
 	      local mailTmp=$(dialog --stdout --inputbox "Nouvelle adresse mail" 0 0 "$mail")
 	      
 	      if [[ "$mailTmp" =~ $MAILREGEX ]]; then
@@ -111,7 +102,7 @@ function parametrage {
 
 #Se base sur le fichier backup.conf pour remplir les valeurs globales qui nous seront utiles pour la suite du programme
 function actualiseParam {
-	while read -u 10 p; do #TODO faire sauter la ligne EOF
+	while read -u 10 p; do
 		#Récupération de l'adresse mail
 		local regex="MAIL\s(.*)" 
 		if [[ "$p" =~ $regex ]]; then
@@ -134,6 +125,7 @@ function actualiseParam {
 		fi
 	done 10<parameters.conf
 }
+
 #Demande le mot de passe à l'utilisateur
 function checkAccess {
 	ACCESS_DENIED="1"
@@ -157,7 +149,7 @@ actualiseParam
 checkAccess
 
 while [ $QUIT -eq 0 ]; do
-	#On s'assure que les paramètres du fichier seront toujours mis à jour
+	#On s'assure que les paramètres du fichier seront toujours mis à jour en appelant actualiseParam
 	actualiseParam
 	CHOIX=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Quitter" \
