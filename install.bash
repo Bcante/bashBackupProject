@@ -97,12 +97,14 @@ rm config
 outputdir="/var/mesbackups"
 mkdir $outputdir
 touch backup.conf
+touch parameters.conf
 
 ## Changement du propriétaire et des accès
 chown $user $outputdir
 chown $user backup.conf
+chown $user parameters.conf
 
 echo "USER $nom\n
 PASSPHRASE $pass\n
 MAIL $mail\n
-OUTPUTDIR $outputdir" >> parametres.conf
+OUTPUTDIR $outputdir" >> parameters.conf
