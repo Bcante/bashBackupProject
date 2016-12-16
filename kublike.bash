@@ -212,7 +212,7 @@ function diffBackup {
 ###############################
 ## Préparation des variables ##
 ###############################
-CONF="backup.CONF"
+CONF="backup.conf"
 BACKUPDIR="backups/"
 DATE=$(date +%Y-%m-%d_%H-%M)
 NAME=""

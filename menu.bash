@@ -17,7 +17,10 @@ function aiguillageMainMenu () {
 	local message=""
 	case $choixTmp in
 		1)
-		echo "all set? $UIbackupdir $UIconf "
+		 #On appelle cette fonction pour que les synopsis pris par la fonction soit le plus à jour possible
+		  #getSyno
+		  echo "$UIbackupdir"
+		  echo "$UIconf"
 		  doTheBackup "--backupdir" "$UIbackupdir" "--conf" "$UIconf" 
 		 	#echo "Je viens de faire $name"
 		  ;;
@@ -32,6 +35,12 @@ function aiguillageMainMenu () {
 		  ;;
 		5)
 		  parametrage
+		  ;;
+		6)
+		  decryptBackup
+		  ;;
+		7)
+		  diffBackup
 		  ;;
 		0)
 		  QUIT=1
@@ -92,12 +101,6 @@ function parametrage {
 		  else
 		  	dialog --title "Adresse mail invalide" --msgbox "Merci d'entrer une adresse mail à peu près valide." 0 0
 		  fi
-		  ;;
-		4)
-		#DéchiffreBU
-		  ;;
-		5)
-		#DiffBu
 		  ;;
 		*)
 		 ;;
@@ -167,5 +170,3 @@ while [ $QUIT -eq 0 ]; do
 	aiguillageMainMenu $CHOIX
 done
 echo "Au revoir"
-
-
