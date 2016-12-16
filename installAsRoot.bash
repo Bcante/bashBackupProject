@@ -20,9 +20,9 @@ function askPassPhrase {
 ## Début de l'installation ##
 #############################
 nomduprog="SwagCityRockers"
-user=${cat user.txt}
+user=$(cat user.txt)
 rm user.txt
-homedir=${cat home.txt}
+homedir=$(cat home.txt)
 rm home.txt
 
 ## Vérifie qu'on est root
@@ -56,8 +56,8 @@ nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 	Entrez votre nom pour signer les sauvegardes à votre nom :" 20 70)
 
 askEmail
-regexMail="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-until [[ $mail =~ $regexMail ]]
+local regexMail="[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"
+while ! [[ $mail =~ $regexMail ]]
 do
 	dialog --no-cancel --ok-label "Entrer une autre adresse email" \
 	--title "Configuration de gpg"
@@ -66,7 +66,7 @@ do
 done
 
 askPassPhrase
-until [[ $pass = $passconfirm ]]
+while ! [[ $pass = $passconfirm ]]
 do
 	dialog --no-cancel --ok-label "Entrer à nouveau le mot de passe" \
 	--title "Configuration de gpg"
@@ -83,7 +83,7 @@ cat > config <<EOF
       Name-Comment: $nom
       Name-Email: $mail
       Expire-Date: 0
-      Passphrase: $mdp
+      Passphrase: $pass
       %pubring config.pub
       %secring config.sec
       %commit

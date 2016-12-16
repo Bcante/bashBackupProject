@@ -158,7 +158,7 @@ function chooseBackupName {
 
 # Création de la sauvegarde
 function doTheTar {
-	local files="$1 /${HOME}/Got"
+	local files="$1" "/${HOME}/Got"
 	local error="$(tar vcfz ${NAME} ${files} 2>&1 > /dev/null)"
 	if [ -n "$error" ]; then
 		logger "$error"
@@ -219,7 +219,7 @@ function diffBackup {
 ## Préparation des variables ##
 ###############################
 CONF="backup.conf"
-BACKUPDIR="$(pwd)/backups/"
+BACKUPDIR="/var/mesbackups/"
 DATE=$(date +%Y-%m-%d_%H-%M)
 NAME=""
 ERRORS=""
