@@ -1,21 +1,38 @@
 #!/bin/bash
 
-fichierConf="kublike.conf"
+pass=""
+user=""
+
+function getUserAndPass {
+	local regexpass="PASSPHRASE\s(.*)"
+	local regexuser="USER\s(.*)"
+
+	while read -u 10 p
+	do
+		if [[ $p =~ $regexpass ]]; then
+			pass="${BASH_REMATCH[1]}"
+		fi
+
+		if [[ $p =~ $regexuser ]]; then
+			user="${BASH_REMATCH[1]}"
+		fi
+	done 10<parameters.conf
+}
 
 # Chiffrement de la sauvegarde
-## $1 nom du fichier a encrypter
-## suivi de cat $fichierConf
-## - $2 est le nom du destinataire
-## - $3 est la passphrase du tar
+## $1 nom du fichier a chiffrer
 function encrypt {
-	gpg2 --symmetric --batch --yes --recipient $2 --passphrase $3 --encrypt $1
+	getUserAndPass
+	gpg2 --symmetric --batch --yes --recipient $user --passphrase $pass --encrypt $1
 	rm -f $1
 }
 
 # Déchiffrement de la sauvegarde
-## $1 nom du fichier a décrypter
-## suivi de cat $fichierConf
-## - $3 est la passphrase du tar
+## $1 nom du fichier a déchiffrer
 function decrypt {
-	gpg2 --passphrase $3 --decrypt $1
+	getUserAndPass
+	gpg2 --passphrase $pass --decrypt $1
 }
+
+## TODO cat le fichier directement dans mes fonctions
+## sed -n 2p "$1"

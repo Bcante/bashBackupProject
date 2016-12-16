@@ -69,7 +69,7 @@ function getMail {
 	local oldIFS=$IFS
 	IFS=$'\n'
 	regex="MAIL\s(.*)"
-	for i in `cat backup.conf`; do
+	for i in `cat parameters.conf`; do
 		if [[ $i =~ $regex ]]; then
 			tmpMail="${BASH_REMATCH[1]}"
 			if [[ $tmpMail =~ $MAILREGEX ]]; then
@@ -128,6 +128,8 @@ function getSyno {
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
 			cat Errors.txt | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
 			rm Errors.txt
+		else
+			echo "Adresse mail invalide: Le fichier de log ne peut être envoyé"
 		fi
 	fi
 }
