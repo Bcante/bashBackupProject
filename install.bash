@@ -20,16 +20,20 @@ function askPassPhrase {
 		--passwordbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nConfirmez votre mot de passe :" 20 70)
 }
 
-echo "Ce programme va installer et configurer $nomduprog, notre solution de backup.\n\
-	Afin de procéder à l'installation, vous devez avoir sudo d'installé et lancer ce script en tant que l'utilisateur qui fera les sauvegardes."
+###############################
+### Début de l'installateur ###
+###############################
 
-sudo -i
+echo "Ce programme va installer et configurer $nomduprog, notre solution de backup."
+echo "Afin de procéder à l'installation, vous devez passer en super-utilisateur."
+### WTF >.<
+#su
 
 ## Vérifie qu'on est root
 root=$(whoami)
 if [ $root != "root" ]; then
-	echo "Ce script doit effectuer des modifications sur votre système, il a donc besoin de tous les droits.\
-		\nVeuillez relancer le script et entrer votre mot de passe a nouveau."
+	echo "Ce script doit effectuer des modifications sur votre système, il a donc besoin de tous les droits."
+	echo "Veuillez relancer le script et entrer votre mot de passe a nouveau."
 	exit 1
 fi
 
@@ -103,7 +107,7 @@ chown $user $outputdir
 chown $user backup.conf
 chown $user parameters.conf
 
-echo "USER $nom\n
-PASSPHRASE $pass\n
-MAIL $mail\n
+echo "USER $nom$('\n')
+PASSPHRASE $pass$('\n')
+MAIL $mail$('\n')
 OUTPUTDIR $outputdir" >> parameters.conf
