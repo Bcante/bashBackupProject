@@ -57,7 +57,7 @@ nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 
 askEmail
 regexMail="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-until [[ $mail =~ $regexMail ]]
+while ! [[ $mail =~ $regexMail ]]
 do
 	dialog --no-cancel --ok-label "Entrer une autre adresse email" \
 	--title "Configuration de gpg"
@@ -66,7 +66,7 @@ do
 done
 
 askPassPhrase
-until [[ $pass = $passconfirm ]]
+while ! [[ $pass = $passconfirm ]]
 do
 	dialog --no-cancel --ok-label "Entrer à nouveau le mot de passe" \
 	--title "Configuration de gpg"
@@ -83,7 +83,7 @@ cat > config <<EOF
       Name-Comment: $nom
       Name-Email: $mail
       Expire-Date: 0
-      Passphrase: $mdp
+      Passphrase: $pass
       %pubring config.pub
       %secring config.sec
       %commit
