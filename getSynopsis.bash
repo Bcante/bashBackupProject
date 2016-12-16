@@ -108,7 +108,7 @@ function getSyno {
 			curl "https://daenerys.xplod.fr/synopsis.php?s=$saison&e=$episode" | grep -E '^([a-zA-Z].*)<|<p class="left-align light">(.*)<' > curlRes2
 				
 			while read -u 10 d; do
-				checkFiles $saison $episode #TODO CA MARCHE PAS DE OUF
+				checkFiles $saison $episode
 				formatSyno $d $saison $episode
 			done 10<curlRes2
 
