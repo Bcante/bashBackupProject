@@ -23,7 +23,7 @@ function getUserAndPass {
 ## $1 nom du fichier a chiffrer
 function encrypt {
 	getUserAndPass
-	gpg2 --symmetric --batch --yes --recipient $user --passphrase $pass --encrypt $1
+	gpg2 --symmetric --batch --yes --recipient "$user" --passphrase "$pass" --encrypt "$1"
 	rm -f $1
 }
 

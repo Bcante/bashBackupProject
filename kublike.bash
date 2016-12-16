@@ -120,11 +120,7 @@ function readPaths {
 	while read -r line; do
 		if [ -f "$line" ] || [ -d "$line" ]; then
 			if [ -r "$line" ]; then
-				if [ -z "$found" ]; then
-					found="$line"
-				else
-					found="$found $line"
-				fi
+				found+="$line "
 			else
 				error=${error}"\nProblème de droit d'accès : $line"
 			fi
@@ -142,7 +138,8 @@ function readPaths {
 	if [ $QUIETFLAG -eq 0 ] && [ -n "$error" ]; then
 		dialog --title "Tous les fichiers n'ont pas étés trouvés, continuer ?" --yesno "$error" 0 0
 		local answer=$?
-		if [ $answer -eq  0 ]; then
+		echo $answer
+		if [ $answer -ne 0 ]; then
 			exit 4
 		fi
 	fi
@@ -170,7 +167,8 @@ function doTheTar {
 
 # Maintien du nombre de backup a 100 maximum
 function clearOldBackups {
-	local backupCount=`ls $BACKUPDIR | grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(_[0-9]+)?\.tar\.gz" | wc -l`
+	local backupCount=0
+	backupCount=`ls $BACKUPDIR | grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(_[0-9]+)?\.tar\.gz" | wc -l`
 	local returnCode=0
 	if [ $backupCount -ge 100 ]; then
 		file=`ls -tr backups | head -n 1`
@@ -192,7 +190,7 @@ function doTheBackup {
 	chooseBackupName
 	readPaths
 	clearOldBackups
-	encrypt $NAME
+	encrypt "$NAME"
 }
 
 function decryptBackup {
@@ -204,23 +202,24 @@ function decryptBackup {
 }
 
 function diffBackup {
-	prev=$HOME
-	HOME="/home/bleacks/MEGAsync/MIAGE/L3/Script/bashBackupProject/backups"
-	tarD=`dialog --stdout --title "Choisissez la première backup à comparer" --fselect ${HOME}/ 0 0`
-	reTarD=`dialog --stdout --title "Choisissez la seconde backup à comparer" --fselect ${HOME}/ 0 0`
-	diffs=$(diff <(tar -tvf $tarD | rev | cut -d\/ -f1 | rev) <(tar -tvf $reTarD | rev | cut -d\/ -f1 | rev))
-	if [ -z $diffs ]; then
-		diffs="Les deux backups sont identiques"
+	tarD=`dialog --stdout --title "Choisissez la première backup à comparer" --fselect $BACKUPDIR 0 0`
+	if [ -n $tarD ]; then
+		reTarD=`dialog --stdout --title "Choisissez la seconde backup à comparer" --fselect $BACKUPDIR 0 0`
+		if [ -n $reTarD ]; then
+			diffs=$(diff <(tar -tvf $tarD | rev | cut -d\/ -f1 | rev) <(tar -tvf $reTarD | rev | cut -d\/ -f1 | rev))
+			if [ -z $diffs ]; then
+				diffs="Les deux backups sont identiques"
+			fi
+			dialog --title "Différence(s) entre les backup" --msgbox "$diffs" 0 0
+		fi
 	fi
-	dialog --title "Différence(s) entre les backup" --msgbox "$diffs" 0 0
-	HOME=$prev
 }
 
 ###############################
 ## Préparation des variables ##
 ###############################
 CONF="backup.conf"
-BACKUPDIR="backups/"
+BACKUPDIR="$(pwd)/backups/"
 DATE=$(date +%Y-%m-%d_%H-%M)
 NAME=""
 ERRORS=""
