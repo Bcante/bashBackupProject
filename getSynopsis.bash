@@ -126,7 +126,7 @@ function getSyno {
 	if [ "$QUIETFLAG" = "1" ]; then
 		if [ "$INCORRECT_MAIL_FLAG" != "1" ]; then
 			#CETTE PARTIE NECESSITE UN FICHIER DE CONFIGURATION
-			cat Errors.txt | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
+		#	cat Errors.txt | mail -s "Erreurs de téléchargement des fichiers de synopsis" $mail #MATILO
 			rm Errors.txt
 		else
 			echo "Adresse mail invalide: Le fichier de log ne peut être envoyé"

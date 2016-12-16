@@ -1,6 +1,6 @@
 #!/bin/bash
-source kublike.bash -q --backup /home/$user/parametres.conf
-source getSynopsis.bash -q #Lance le getSynopsis.bash et génère donc auotmatiquement l'envoi de mail
+source getSynopsis.bash
+source kublike.bash 
 source uploadBackup.bash
 
 # Il faut donc que chaque heure (13:00, 14:00, 15:00, ... ), le script:
@@ -8,7 +8,5 @@ source uploadBackup.bash
 # - effectue une backup
 # - l’upload sur le service d’upload de backups, le tout automatiquement.
 
-
-init
-doTheBackup #Fait le back up avec les synopsis"
-upload "$name" #Upload le tout 
+doTheBackup "--backupdir" "./backups" "--conf" "./backup.conf" "-q"
+upload "$NAME" 

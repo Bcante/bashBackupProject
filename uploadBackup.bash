@@ -36,7 +36,6 @@ function getMyFile () {
 # $2 : Le hash lié au fichier
 
 function displayUploadedFilesv2 {
-	echo "$GROUPNAME means what"
 	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .name' > filelist
 	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .hash' > hashlist
 	#Suppression des quotes

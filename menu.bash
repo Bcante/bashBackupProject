@@ -75,7 +75,7 @@ function parametrage {
 			if [[ $ligne =~ $regex ]]; then
 				local oldValue="${BASH_REMATCH[1]}"
 				#On doit délimiter avec des @ au lieu de / car sinon les / du chemins seront mal interprétés par bash
-				sed -i -e "s@$oldValue@$BACKUPDIR@g" parametres.conf
+				sed -i -e "s@$oldValue@$BACKUPDIR@g" paramaters.conf
 				#TODO: vérifier si le chemin fini bien par un "/" ?
 			fi
 			done 10<parameters.conf
