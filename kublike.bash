@@ -195,6 +195,14 @@ function doTheBackup {
 	encrypt $NAME
 }
 
+function decryptBackup {
+	tarGET=`dialog --stdout --title "Choisissez la backup à traiter" --fselect ${HOME}/ 0 0`
+	if [ -f $tarGet ]; then
+		decrypt $tarGet
+	fi
+	tarGet=${tarGet:-4}  
+}
+
 ###############################
 ## Préparation des variables ##
 ###############################
@@ -214,23 +222,22 @@ source getSynopsis.bash
 ############################
 
 
+	# MUST HAVE
 # TODO : Refactor globaux
+# TODO : Voir avec Val pour la fonction decrypt (params)
 # TODO : ajotuer une fonction qui utilise les droits admins pour créer répertoire de backup
 # TODO : Changer params d'entree pour le mode quiet
 # TODO : Faire interpréter les chemins par bash pour remplacer les $USER et autres
 # TODO : Refactor la comparaison de backups pour eviter les problèmes
 
+	# OPTIONAL
+# TODO : définir des normes de taille régulière
+
+	# CHECK
 # TODO : Ajouter l'envoi des erreurs par mail lors de l'execution avec -q
-	# check
 # TODO : Créer les fichiers de base s'ils n'existent pas
-	# check
 # TODO : Ajouter un script qui vérifie que les répertoires de Conf sont bien créés
-	# check
 # TODO : rediriger les erreurs vers Errors.txt et delete la variable globale
-	# check
 # TODO : tester avec des chemins absolus
-	# check
 # TODO : vérifier que les valeurs retournées sont bien catch
-	# check
 # TODO : Ajouter une variable globale pour les erreurs
-	# check
