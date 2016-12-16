@@ -20,9 +20,9 @@ function askPassPhrase {
 ## Début de l'installation ##
 #############################
 nomduprog="SwagCityRockers"
-user=${cat user.txt}
+user=$(cat user.txt)
 rm user.txt
-homedir=${cat home.txt}
+homedir=$(cat home.txt)
 rm home.txt
 
 ## Vérifie qu'on est root
@@ -56,38 +56,40 @@ nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 	Entrez votre nom pour signer les sauvegardes à votre nom :" 20 70)
 
 askEmail
-until [[ $mail =~ "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$" ]]
+regexMail="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+until [[ $mail =~ $regexMail ]]
 do
-	dialog --stdout --no-cancel --ok-label "Entrer une autre adresse email" \
+	dialog --no-cancel --ok-label "Entrer une autre adresse email" \
 	--title "Configuration de gpg"
-	--msgbox "L'adresse email que vous avez entré n'est pas valide, veuillez réessayer."
+	--msgbox "L'adresse email que vous avez entré n'est pas valide, veuillez réessayer." 20 70
 	askEmail
 done
 
 askPassPhrase
 until [[ $pass = $passconfirm ]]
 do
-	dialog --stdout --no-cancel --ok-label "Entrer à nouveau le mot de passe" \
+	dialog --no-cancel --ok-label "Entrer à nouveau le mot de passe" \
 	--title "Configuration de gpg"
-	--msgbox "Les deux mots de pass entrés ne sont pas identiques, veuillez réessayer."
+	--msgbox "Les deux mots de pass entrés ne sont pas identiques, veuillez réessayer." 20 70
 	askPassPhrase
 done
 
-echo "Key-Type: DSA$('\n')
-Key-Length: 1024$('\n')
-Subkey-Type: ELG-E$('\n')
-Subkey-Length: 1024$('\n')
-Name-Real: $nom$('\n')
-Name-Comment: $nom$('\n')
-Name-Email: $mail$('\n')
-Expire-Date: 0$('\n')
-Passphrase: $mdp$('\n')
-%pubring config.pub$('\n')
-%secring config.sec$('\n')
-%commit" >> config
+cat > config <<EOF
+      Key-Type: DSA
+      Key-Length: 1024
+      Subkey-Type: ELG-E
+      Subkey-Length: 1024
+      Name-Real: $nom
+      Name-Comment: $nom
+      Name-Email: $mail
+      Expire-Date: 0
+      Passphrase: $mdp
+      %pubring config.pub
+      %secring config.sec
+      %commit
+EOF
 
-dialog --stdout\
-	--prgbox "gpg2 --verbose --batch --gen-key config" 20 70
+dialog --prgbox "gpg2 --verbose --batch --gen-key config" 20 70
 rm config
 
 ## Création des fichiers et dossiers de config
@@ -95,13 +97,19 @@ outputdir="/var/mesbackups"
 workingdir="$homedir/backup"
 mkdir $outputdir
 mkdir $workingdir
+
 touch $workingdir/backup.conf
 touch $workingdir/parameters.conf
 
-## Changement du propriétaire et des accès
-chown $user $outputdir
-chown $user backup.conf
-chown $user parameters.conf
+mv ./crontask.bash $workingdir/
+mv ./getSynopsis.bash $workingdir/
+mv ./gpg.bash $workingdir/
+mv ./kublike.bash $workingdir/
+mv ./menu.bash $workingdir/
+mv ./uploadBackup.bash $workingdir/
+
+chown -R $user $outputdir
+chown -R $user $workingdir
 
 echo "USER $nom$('\n')
 PASSPHRASE $pass$('\n')
