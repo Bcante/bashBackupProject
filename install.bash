@@ -1,6 +1,7 @@
 #!/bin/bash
+nomduprog="SwagCityRockers"
 user=$(whoami)
-echo "Ce programme va installer et configurer SwagCityRockers, notre solution de backup.\n\
+echo "Ce programme va installer et configurer $nomduprog, notre solution de backup.\n\
 	Afin de procéder à l'installation, vous devez avoir les permissions du super-utilisateur."
 
 sudo -i
@@ -13,12 +14,12 @@ if [ $root != "root" ]; then
 	exit 1
 fi
 
-echo "Installation de dialog pour pouvoir procéder à l'installation de SwagCityRocker..."
+printf "Installation de dialog pour pouvoir procéder à l'installation de $nomduprog...\n"
 apt-get -y install dialog
 
 dialog --yes-label "Continuer" --no-label "Annuler"\
-	--title "Installation de SwagCityRockers"\
-	--yesno "Ce programme va installer SwagCityRockers et vous permettre de le paramètrer." 40 100
+	--title "Installation de $nomduprog"\
+	--yesno "Ce programme va installer $nomduprog et vous permettre de le paramètrer." 40 100
 
 if [ $? != 0 ]; then
 	echo "Au revoir !"
@@ -27,25 +28,25 @@ fi
 
 ## Installation des composants requis
 dialog --prgbox "apt-get -y update" 40 100
-dialog --prgbox "apt-get -y install tar gnupg2 curl wget sed sendmail mailutils sendmail-bin" 40 100
+dialog --prgbox "apt-get -y install tar gnupg2 curl wget sed sendmail mailutils sendmail-bin jq" 40 100
 
 ## Préparation pour GPG
 nom=$(dialog --stdout --no-cancel --ok-label "Suivant" \
 	--title "Configuration de gpg" \
-	--inputbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nEntrez votre nom pour signer les sauvegardes à votre nom :" 20 70)
+	--inputbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nEntrez votre nom pour signer les sauvegardes à votre nom :" 20 70)
 
 mail=$(dialog --stdout --no-cancel  --ok-label "Suivant" \
 	--title "Configuration de gpg" \
-	--inputbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nEntrez votre adresse email :" 20 70)
+	--inputbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nEntrez votre adresse email :" 20 70)
 # TODO faire un while pour vérifier que le mail est ok
 
 mdp=$(dialog --stdout --no-cancel  --ok-label "Suivant" \
 	--title "Configuration de gpg" \
-	--passwordbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nEntrez votre mot de passe :" 20 70)
+	--passwordbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nEntrez votre mot de passe :" 20 70)
 
 mdpverif=$(dialog --stdout --no-cancel  --ok-label "Terminer" \
 	--title "Configuration de gpg" \
-	--passwordbox "Configuration de gpg, utilisé pour crypter les sauvegardes.\n\nValidez votre mot de passe :" 20 70)
+	--passwordbox "Configuration de gpg, utilisé pour chiffrer les sauvegardes.\n\nValidez votre mot de passe :" 20 70)
 # TODO Faire un while pour vérifier que le mdp == la mdpverif
 
 cat > config <<EOF
@@ -68,9 +69,13 @@ dialog --stdout\
 rm config
 
 ## Création des fichiers et dossiers de config
-mkdir ./backups
+outputdir="/var/mesbackups"
+mkdir $outputdir
 touch backup.conf
 
 ## Changement du propriétaire et des accès
-chown $user ./backups
+chown $user $outputdir
 chown $user backup.conf
+
+echo "MAIL $mail" >> parametres.conf
+echo "OUTPUTDIR $outputdir" >> parametres.conf
