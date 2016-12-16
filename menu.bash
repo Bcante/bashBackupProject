@@ -17,8 +17,9 @@ function aiguillageMainMenu () {
 	local message=""
 	case $choixTmp in
 		1)
-			echo "all set? $UIbackupdir $UIconf "
-		  doTheBackup "--backupdir "$UIbackupdir"--conf "$UIconf 
+#echo "all set? $UIbackupdir $UIconf "
+		  doTheBackup "--backupdir "$UIbackupdir" --conf "$UIconf 
+		 	#echo "Je viens de faire $name"
 		  ;;
 		2)
 		  graphUpMyFile
@@ -124,7 +125,6 @@ init
 
 
 while [ $QUIT -eq 0 ]; do
-echo "sortie: $backupdir"
 	CHOIX=$(dialog --stdout --title "Menu principal" --menu "Menu" 0 0 0 \
 		"0" "Quitter" \
 		"1" "Faire un Backup" \

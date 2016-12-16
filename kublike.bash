@@ -13,7 +13,7 @@
 	# $1 : Message d'erreur
 	# $2 : exit code
 
-	echo "bite" $HOME
+	
 logger () {
 	if [ $QUIETFLAG -eq 0 ]; then
 		if [ $# -ge 1 ]; then

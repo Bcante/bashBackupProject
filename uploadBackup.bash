@@ -1,5 +1,5 @@
 #!/bin/bash
-NAME="SwagCityRockers"
+GROUPNAME="SwagCityRockers"
 
 
 # Pour tester, on prend que les fichiers du dir courant pour les upload.
@@ -12,7 +12,7 @@ function graphUpMyFile {
 # $1 : Le fichier à mettre en ligne 
 function upload () {
 	local fileToUpload=$1
-	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$NAME" -F "file=@$fileToUpload")
+	local reponse=$(curl "https://daenerys.xplod.fr/backup/upload.php?login=$GROUPNAME" -F "file=@$fileToUpload")
 	#Set l'IFS sur "=" et permet de split la réponse du serveur entre le code de retour et le hash
 	IFS== read status hashsite <<< $reponse
 	#On vérifie que le site a bien reçu
@@ -24,7 +24,7 @@ function getMyFile () {
 	#On part à la recherche du hash correspondant dans notre fichier (la fonction appelée va modifier ASSOCIATEDHASH)
 	displayUploadedFilesv2
 	if [ "$ASSOCIATEDHASH" != "" ]; then
-		wget "https://daenerys.xplod.fr/backup/download.php?login=$NAME&hash=$ASSOCIATEDHASH" -O $ASSOCIATEDNAME
+		wget "https://daenerys.xplod.fr/backup/download.php?login=$GROUPNAME&hash=$ASSOCIATEDHASH" -O $ASSOCIATEDGROUPNAME
 	else
 		dialog --title "Impossible d'afficher les backups" --msgbox "Soit vous avez annulé l'opération précédente, soit vous n'avez pas encore mis en ligne de backup." 0 0
 	fi
@@ -37,9 +37,11 @@ function getMyFile () {
 # $2 : Le hash lié au fichier
 
 function displayUploadedFilesv2 {
-	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=$NAME' | jq '.[] | .name' > filelist
-	curl -s 'https://daenerys.xplod.fr/backup/list.php?login=$NAME' | jq '.[] | .hash' > hashlist
-	
+	echo "$GROUPNAME means what"
+	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .name' > filelist
+	curl -s "https://daenerys.xplod.fr/backup/list.php?login=$GROUPNAME" | jq '.[] | .hash' > hashlist
+	cat filelist
+	cat hashlist
 	#Suppression des quotes
 	$(sed -i 's/\"//g' filelist)
 	$(sed -i 's/\"//g' hashlist)
@@ -59,9 +61,9 @@ function displayUploadedFilesv2 {
 		local numLigne=$(dialog --stdout --menu "Sélectionner le fichier à récupérer depuis le cloud (tm)" 0 0 0 $menuOptions)
 		echo $fileToUpload
 		ASSOCIATEDHASH=$(sed "${numLigne}q;d" hashlist)
-		ASSOCIATEDNAME=$(sed "${numLigne}q;d" filelist)
-		rm filelist
-		rm hashlist
+		ASSOCIATEDGROUPNAME=$(sed "${numLigne}q;d" filelist)
+		#rm filelist
+		#rm hashlist
 	fi
 
 }
