@@ -123,7 +123,7 @@ function readPaths {
 				if [ -z "$found" ]; then
 					found="$line"
 				else
-					found=$found "$line"
+					found="$found $line"
 				fi
 			else
 				error=${error}"\nProblème de droit d'accès : $line"
@@ -137,7 +137,7 @@ function readPaths {
 	if [ -z "$found" ]; then
 		logger "Aucun fichier n'a été trouvé, vérifiez que le fichier de configuration contient au moins un fichier" 1
 	else	
-		doTheTar $found
+		doTheTar "$found"
 	fi
 	if [ $QUIETFLAG -eq 0 ] && [ -n "$error" ]; then
 		dialog --title "Tous les fichiers n'ont pas étés trouvés, continuer ?" --yesno "$error" 0 0
@@ -204,9 +204,16 @@ function decryptBackup {
 }
 
 function diffBackup {
+	prev=$HOME
+	HOME="/home/bleacks/MEGAsync/MIAGE/L3/Script/bashBackupProject/backups"
 	tarD=`dialog --stdout --title "Choisissez la première backup à comparer" --fselect ${HOME}/ 0 0`
 	reTarD=`dialog --stdout --title "Choisissez la seconde backup à comparer" --fselect ${HOME}/ 0 0`
-	dialog --title "Différence(s) entre les backup" --msgbox $(diff $tarD $reTarD) 0 0
+	diffs=$(diff <(tar -tvf $tarD | rev | cut -d\/ -f1 | rev) <(tar -tvf $reTarD | rev | cut -d\/ -f1 | rev))
+	if [ -z $diffs ]; then
+		diffs="Les deux backups sont identiques"
+	fi
+	dialog --title "Différence(s) entre les backup" --msgbox "$diffs" 0 0
+	HOME=$prev
 }
 
 ###############################
@@ -222,6 +229,15 @@ ERRORS=""
 ###############################
 source gpg.bash
 source getSynopsis.bash
+
+###############################
+## Donneés de test pour diff ##
+###############################
+#echo "/home/bleacks/MEGAsync/MIAGE/L3/Script/bashBackupProject/test/file1.txt" > $CONF
+#doTheBackup "--backupdir" "$BACKUPDIR" "--conf" "$CONF"
+#echo "/home/bleacks/MEGAsync/MIAGE/L3/Script/bashBackupProject/test/file2.txt" >> $CONF
+#doTheBackup "--backupdir" "$BACKUPDIR" "--conf" "$CONF"
+#diffBackup
 
 	# MUST HAVE
 # TODO : Changer params d'entree pour le mode quiet

@@ -21,7 +21,7 @@ function aiguillageMainMenu () {
 		  #getSyno
 		  echo "$UIbackupdir"
 		  echo "$UIconf"
-		  doTheBackup "--backupdir" "$UIbackupdir" "--conf" "$UIconf" 
+		  doTheBackup "--backupdir" "$UIbackupdir" "--conf" "$UIconf"
 		 	#echo "Je viens de faire $name"
 		  ;;
 		2)
